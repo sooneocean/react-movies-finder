@@ -1,0 +1,67 @@
+name: WatchPilot full vinext Cloudflare Workers build
+on:
+  push:
+    branches:
+      - feat/watchpilot-vinext-generated
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-cloudflare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Restore pinned npm dependencies
+        run: npm ci
+      - name: Check vinext compatibility
+        run: npx vinext check
+      - name: Build full Next.js app for Cloudflare Workers
+        env:
+          MOVIE_DB_API_KEY: ""
+          TYPESAFE_API_KEY: ""
+          WATCHPILOT_ENABLE_JEV: "0"
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: npm run build:vinext
+      - name: Check output file list
+        run: |
+          test -f cloudflare.config.ts
+          test -f vite.config.ts
+          test -d .cloudflare/output || test -d dist
+          echo "Vinext Cloudflare Worker build validated without credentials."
+      - name: Install isolated Chromium testing dependencies
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run full vinext Worker local browser preview
+        env:
+          CI: "true"
+          MOVIE_DB_API_KEY: ""
+          TYPESAFE_API_KEY: ""
+          WATCHPILOT_ENABLE_JEV: "0"
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: npx playwright test --config=tests/cloudflare/vinext-preview.config.mjs
+      - name: Preserve vinext preview traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watchpilot-vinext-preview-failure
+          path: tests/cloudflare/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Preserve build errors
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watchpilot-vinext-build-failure
+          path: |
+            .cloudflare/output/
+            dist/
+          if-no-files-found: ignore
+          retention-days: 3

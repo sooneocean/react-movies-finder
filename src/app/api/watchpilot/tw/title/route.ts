@@ -6,6 +6,13 @@ export const dynamic = "force-dynamic";
 
 /** Private, manual on-demand refresh; do not publicly deploy without authentication and rate limits. */
 export async function GET(request: NextRequest) {
+  // Never allow an unauthenticated full-catalog proxy on public Workers.
+  if (process.env.NODE_ENV !== "development") {
+    return NextResponse.json({
+      code:"PUBLIC_TMDB_DISABLED",
+      error:"公開研究站不提供匿名TMDB片源刷新；請在本機使用自己的TMDB金鑰。",
+    }, {status:403,headers:{"Cache-Control":"private, no-store"}});
+  }
   const raw = request.nextUrl.searchParams.get("id") ?? "";
   if (!/^[1-9]\d{0,9}$/.test(raw)) {
     return NextResponse.json({ code: "INVALID_QUERY", error: "請提供有效TMDB電影ID。" },

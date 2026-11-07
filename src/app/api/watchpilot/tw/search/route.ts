@@ -8,6 +8,14 @@ export const dynamic = "force-dynamic";
 
 /** Personal-research endpoint. Not a public bulk-access or catalog proxy. */
 export async function GET(request: NextRequest) {
+  // Public Workers cannot act as an anonymous TMDB API-key proxy.
+  // Personal research with your own key remains available via npm run dev.
+  if (process.env.NODE_ENV !== "development") {
+    return NextResponse.json({
+      code: "PUBLIC_TMDB_DISABLED",
+      error: "公開研究站不提供匿名TMDB代理。請在本機開發環境使用自己的TMDB金鑰查詢。",
+    }, {status:403,headers:{"Cache-Control":"private, no-store"}});
+  }
   const query = request.nextUrl.searchParams.get("q") ?? "";
   try {
     const result = await searchTWMovies(query, process.env.MOVIE_DB_API_KEY);
