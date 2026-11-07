@@ -1,0 +1,43 @@
+name: WatchPilot vinext compatibility probe
+on:
+  push:
+    branches:
+      - feat/watchpilot-cloudflare-launch
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check-nextjs-cloudflare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Check Next.js compatibility with Cloudflare vinext
+        run: npx --yes vinext@latest check
+      - name: Initialize non-destructive Cloudflare config in CI only
+        run: |
+          npx --yes vinext@latest init \
+            --platform=cloudflare \
+            --name=watchpilot-lab \
+            --cdn-cache=none \
+            --data-cache=none \
+            --image-optimization=none
+          ls -la cloudflare.config.ts vite.config.ts || true
+      - name: Build vinext without any paid API
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+          WATCHPILOT_ENABLE_JEV: "0"
+          MOVIE_DB_API_KEY: ""
+          TYPESAFE_API_KEY: ""
+        run: npm run build:vinext
+      - name: Show only generated config filenames
+        if: always()
+        run: |
+          git status --short
+          echo "The Cloudflare CLI is not authenticated in this probe."
+          echo "No deployment is performed by this workflow."
