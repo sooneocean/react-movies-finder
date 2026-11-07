@@ -49,7 +49,7 @@ export default function TWCatalogResearchPage() {
   const currentRequest = useRef(0);
 
   const providerLabels = new Map<string, string>(
-    LAB_PROVIDERS.map(provider => [provider.id, provider.name]),
+    LAB_PROVIDERS.map(provider => [provider.id, provider.name] as [string, string]),
   );
   for (const item of [...selected, ...results]) {
     for (const offer of item.offers) {
