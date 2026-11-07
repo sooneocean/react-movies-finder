@@ -91,3 +91,22 @@ test("same input produces byte-identical deterministic results", () => {
   const data = input([movie("a"), movie("b")]);
   assert.deepEqual(planViewing(data), planViewing(data));
 });
+
+test("global weekly budget holds even when seven daily slots are individually large", () => {
+  const result = planViewing(input(
+    [movie("a"), movie("b"), movie("c"), movie("d")],
+    {
+      weeklyBudgetMinutes: 220,
+      slots: Array.from({ length: 7 }, (_, i) => ({
+        date: "2026-11-" + String(i + 7).padStart(2, "0"),
+        minutes: 180,
+      })),
+    },
+  ));
+  assert.equal(result.requestedMinutes, 220);
+  assert.equal(result.scheduledMinutes, 200);
+  assert.equal(result.items.length, 2);
+});
+test("invalid global weekly budget fails safely", () => {
+  assert.throws(() => planViewing(input([movie("a")], { weeklyBudgetMinutes: -1 })));
+});
