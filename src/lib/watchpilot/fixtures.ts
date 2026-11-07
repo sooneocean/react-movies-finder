@@ -54,7 +54,7 @@ export function makeLabInput(settings: LabSettings): PlanInput {
     observedOn,
     ...(expiresIn === undefined ? {} : { expiresOn: addDay(settings.startDate, expiresIn) }),
   });
-  const titles: Omit<Candidate, "tasteScore"> & { taste: number }[] = [
+  const titles: (Omit<Candidate, "tasteScore"> & { taste: number })[] = [
     { id: "sample-01", title: "研究樣本A｜科幻探索", runtimeMinutes: 128, genres: ["science-fiction"], taste: 86, qualityScore: 91, offers: [offer("netflix", 2)] },
     { id: "sample-02", title: "研究樣本B｜懸疑推理", runtimeMinutes: 112, genres: ["mystery"], taste: 83, qualityScore: 87, offers: [offer("disney")] },
     { id: "sample-03", title: "研究樣本C｜犯罪劇情", runtimeMinutes: 118, genres: ["crime", "drama"], taste: 80, qualityScore: 89, offers: [offer("netflix", 5)] },
