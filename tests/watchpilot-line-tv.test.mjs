@@ -118,9 +118,9 @@ test("reviewed official deadline remains separate from third-party TW observatio
     id: 42, title: "研究電影甲", runtime: 105, genres: [], vote_average: 8, vote_count: 100,
   }, { results: { TW: { flatrate: [{ provider_id: 999, provider_name: "LINE TV" }] } } },
   "2026-11-07T00:00:00Z");
-  // Unknown TMDB provider ID stays namespaced; official importer cannot pretend
-  // to know it is the same provider without an explicit adapter mapping.
+  // A verified provider-name mapping is allowed, but availability stays observed.
   assert.ok(title.offers.every(x => x.evidence === "OBSERVED"));
+  assert.equal(title.offers[0].providerId, LINE_TV_PROVIDER_ID);
   const workspace = upsertTrackedTitle(emptyRadarWorkspace(), title,
     new Date("2026-11-07T01:00:00Z"));
   const reviewed = upsertReviewedNotice(workspace, {
@@ -131,5 +131,27 @@ test("reviewed official deadline remains separate from third-party TW observatio
   assert.equal(reviewed.reviewedNotices.length, 1);
   const projected = withReviewedExpiry(reviewed.tracked, reviewed.reviewedNotices);
   assert.equal(projected[0].offers[0].evidence, "OBSERVED");
+  assert.equal(projected[0].offers[0].expiresOn, "2026-11-25");
+  assert.equal(projected[0].offers[0].expiryEvidence, "USER_REVIEWED_OFFICIAL");
+});
+
+test("reviewed LINE TV expiry never creates a non-existent LINE TV offer", () => {
+  const title = normalizeTWMovie({
+    id: 99, title: "沒有LINE TV觀測資料的影片", runtime: 110,
+    genres: [], vote_average: 8, vote_count: 100,
+  }, { results: { TW: { flatrate: [
+    { provider_id: 8, provider_name: "Netflix" },
+  ] } } }, "2026-11-07T00:00:00Z");
+  const saved = upsertReviewedNotice(
+    upsertTrackedTitle(emptyRadarWorkspace(), title, new Date("2026-11-07T01:00:00Z")),
+    {
+      workId: "tmdb:99", providerId: LINE_TV_PROVIDER_ID,
+      expiresOn: "2026-11-25", sourceUrl: LINE_TV_TW_SOURCE_URL,
+      checkedAt: "2026-11-07T02:00:00Z", reviewedByUser: true,
+    },
+  );
+  const projected = withReviewedExpiry(saved.tracked, saved.reviewedNotices);
+  assert.equal(projected[0].offers.length, 1);
+  assert.equal(projected[0].offers[0].providerId, "netflix");
   assert.equal(projected[0].offers[0].expiresOn, null);
 });
