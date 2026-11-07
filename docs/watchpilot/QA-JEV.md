@@ -34,4 +34,4 @@ npm run dev
 `tests/watchpilot-decision-ab.test.mjs`及`tests/watchpilot-jev-service.test.mjs`共14項，涵蓋邊界、回應格式、未啟用零網路呼叫、429不重試、拒絕未授權候選、模型版本與Token紀錄。
 
 ## CI狀態
-原Fork Actions目前查不到歷史執行。PR #5新增`.github/workflows/watchpilot-validation.yml`監看`feat/watchpilot-*`push及stacked PR。是否實際啟動仍取決於GitHub Actions權限與Fork設定；未有官方Check結果前不能視為整個Repo CI通過。
+Fork Actions已由新工作流程成功啟動；2026-11-07有88/88測試、TypeScript、ESLint與無TMDB金鑰Next.js建置的成功執行紀錄（Run 42360787945）。PR #5新增`.github/workflows/watchpilot-validation.yml`監看`feat/watchpilot-*`push及stacked PR。仍須以PR最新Commit的GitHub Checks為準；CI通過不能取代真人瀏覽器驗收或Jev付費API實測。
