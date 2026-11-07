@@ -7,8 +7,8 @@ export default defineConfig({
   expect: { timeout: 12_000 },
   workers: 1,
   retries: 0,
-  reporter: [["list"], ["html", { outputFolder: "tests/e2e/report", open: "never" }]],
-  outputDir: "tests/e2e/test-results",
+  reporter: [["list"], ["html", { outputFolder: "report", open: "never" }]],
+  outputDir: "test-results",
   use: {
     ...devices["Desktop Chrome"],
     baseURL: "http://127.0.0.1:3000",
