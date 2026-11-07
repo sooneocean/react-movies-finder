@@ -35,3 +35,39 @@ jobs:
           NEXT_TELEMETRY_DISABLED: "1"
           MOVIE_DB_API_KEY: ""
         run: npm run build
+
+  browser-smoke:
+    name: Browser E2E (Chromium, no API credentials)
+    # Pinned until Playwright supports the ubuntu26.04 GitHub latest image.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install locked app dependencies
+        run: npm ci
+      - name: Install pinned browser test runner without changing lockfile
+        run: npm install --no-save --package-lock=false @playwright/test@1.56.1
+      - name: Install Chromium browser and dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Run real browser tests against local Next.js
+        env:
+          CI: "true"
+          MOVIE_DB_API_KEY: ""
+          TYPESAFE_API_KEY: ""
+          WATCHPILOT_ENABLE_JEV: "0"
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: npx playwright test --config=tests/e2e/playwright.config.mjs
+      - name: Upload browser trace and screenshots on failures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watchpilot-e2e-failure
+          path: |
+            tests/e2e/report/
+            tests/e2e/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
