@@ -129,3 +129,12 @@ MIT License. Copyright (c) 2020 Lazhari.
 - 官方公告日期須由使用者自行核對HTTPS來源後明確標記「人工查核」，才能影響重新排程。
 - 雷達工作區僅儲存於個人瀏覽器localStorage，最多20部作品、每部20個30天內快照，可從介面清除。
 - 使用與限制詳見[雷達驗收清單](docs/watchpilot/QA-RADAR.md)及[設計決策](docs/watchpilot/ADR-003-CATALOG-RADAR.md)。
+
+### LINE TV台灣官方下架公告研究匯入（PR #4）
+
+- 在`/lab/radar`進入`/lab/official/line-tv`，開啟指定的LINE TV台灣客服文章，自行複製當前清單文字。
+- 系統解析台灣公告片名及日期，並建議完全同名的已追蹤TMDB電影；**不會自動宣告官方驗證或自行抓取整個網站**。
+- 使用者必須逐筆核對並勾選同意才儲存個人本機期限紀錄；日期以台灣下架日23:59為截止。
+- 沒有對應LINE TV觀測片源的作品不會被憑空視為可看。
+- 原始貼入的文字不提交GitHub，不自動同步到外部服務；本研究仍遵守來源網站條款。
+- 見[PR #4驗收](docs/watchpilot/QA-LINE-TV.md)及[來源Adapter設計決策](docs/watchpilot/ADR-004-LINE-TV-OFFICIAL.md)。
