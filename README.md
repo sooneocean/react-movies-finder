@@ -138,3 +138,12 @@ MIT License. Copyright (c) 2020 Lazhari.
 - 沒有對應LINE TV觀測片源的作品不會被憑空視為可看。
 - 原始貼入的文字不提交GitHub，不自動同步到外部服務；本研究仍遵守來源網站條款。
 - 見[PR #4驗收](docs/watchpilot/QA-LINE-TV.md)及[來源Adapter設計決策](docs/watchpilot/ADR-004-LINE-TV-OFFICIAL.md)。
+
+### 規則式與Jev決策A/B實驗（PR #5）
+
+- 開啟`/lab/compare`：不需要Key即可比較兩種免費規則式首選（排程分數／品質分數）。
+- 要執行付費Jev Choice，需在本機`.env.local`設定`TYPESAFE_API_KEY`及`WATCHPILOT_ENABLE_JEV=1`，使用開發模式`npm run dev`，並在頁面上**主動確認本次請求可能計費**。
+- 預設不啟用Jev。每次只比較最多6部已通過硬限制的**合成Fixture**電影，不把真實第三方片庫大規模發送到模型。
+- 任何JeV錯誤均有明確訊息，單次呼叫不自動重試；30秒冷卻僅供單一本機程序降低誤觸風險。
+- 當前介面只做「今晚先看哪部」研究，Jev不能覆寫片庫證據、下架日期或排程限制。
+- 參考[設計決策](docs/watchpilot/ADR-005-JEV-AB.md)／[PR #5驗收](docs/watchpilot/QA-JEV.md)。
