@@ -18,6 +18,18 @@ function error(code: string, message: string, status: number) {
 function isRecord(input: unknown): input is Record<string, unknown> {
   return input !== null && typeof input === "object" && !Array.isArray(input);
 }
+function isSameOriginRequest(request: NextRequest): boolean {
+  const origin = request.headers.get("origin") ?? "";
+  try {
+    const actual = new URL(request.url);
+    const submitted = new URL(origin);
+    return submitted.origin === actual.origin &&
+      (actual.protocol === "https:" || actual.hostname === "localhost" ||
+        actual.hostname === "127.0.0.1" || actual.hostname === "::1");
+  } catch {
+    return false;
+  }
+}
 function isLoopbackRequest(request: NextRequest): boolean {
   const host = (request.headers.get("host") ?? "").toLowerCase();
   const origin = request.headers.get("origin") ?? "";
@@ -35,8 +47,10 @@ function isLoopbackRequest(request: NextRequest): boolean {
  * Never accepts the client-supplied film list or external media API data.
  */
 export async function POST(request: NextRequest) {
-  if (!isLoopbackRequest(request)) {
-    return error("LOCAL_ONLY", "只允許從本機localhost頁面使用研究決策API。", 403);
+  // Free fixture calculations can run on public same-origin Cloudflare Workers.
+  // Paid Jev still requires explicit localhost + development gate below.
+  if (!isSameOriginRequest(request)) {
+    return error("SAME_ORIGIN_ONLY", "研究請求必須從同一來源的WatchPilot頁面送出。", 403);
   }
   const raw: unknown = await request.json().catch(() => null);
   if (!isRecord(raw) || typeof raw.prompt !== "string" || raw.prompt.length > 400 ||
@@ -81,6 +95,10 @@ export async function POST(request: NextRequest) {
     const exp = createExperiment(raw.prompt, candidates, "fixture");
     let jev = null;
     if (raw.useJev) {
+      if (!isLoopbackRequest(request)) {
+        return error("PAID_LOCAL_ONLY",
+          "付費Jev只能在本機localhost實驗環境呼叫，不對外提供付費代理。", 403);
+      }
       if (process.env.NODE_ENV !== "development" ||
           process.env.WATCHPILOT_ENABLE_JEV !== "1") {
         return error("JEV_DISABLED",
