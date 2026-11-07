@@ -65,6 +65,9 @@ export default async function Home() {
           <Link href="/lab/compare" className="rounded-lg border border-amber/40 px-5 py-3 font-medium text-amber">
             免費A/B決策比較
           </Link>
+          <Link href="/lab/strategy" className="rounded-lg border border-amber/40 px-5 py-3 font-medium text-amber">
+            品味護照與訂閱研究
+          </Link>
           <Link href="/lab/radar" className="rounded-lg border border-border px-5 py-3 font-medium">
             片庫雷達離線演練
           </Link>
