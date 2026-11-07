@@ -207,6 +207,9 @@ export default function StrategyResearchPage() {
         <Link href="/lab" className="text-sm text-amber hover:underline">返回觀影實驗室</Link>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber">WatchPilot Lab / Personal Strategy</p>
         <h1 className="text-3xl font-bold">個人品味護照＋OTT訂閱策略</h1>
+        <Link href="/lab/verify" className="inline-flex rounded-lg border border-amber/50 px-4 py-2 text-sm font-medium text-amber hover:bg-amber/10">
+          先核對真實台灣片源再評估訂閱
+        </Link>
         <p className="max-w-3xl text-muted-foreground">
           先記錄你喜歡的作品，再根據觀看時間、已付費權益和可能續費，模擬接下來30天的觀影／訂閱組合。
         </p>

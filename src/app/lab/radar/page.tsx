@@ -203,6 +203,9 @@ export default function CatalogRadarPage() {
         <Link href="/lab/tw" className="text-sm text-amber hover:underline">返回台灣片源研究</Link>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber">WatchPilot Lab / Catalog Intelligence</p>
         <h1 className="text-3xl font-bold">台灣OTT片庫IN／OUT雷達</h1>
+        <Link href="/lab/verify" className="inline-flex rounded-lg border border-amber/50 px-4 py-2 text-sm font-medium text-amber hover:bg-amber/10">
+          開始台灣片源人工交叉驗證
+        </Link>
         <p className="text-muted-foreground">
           為自己追蹤的電影儲存少量台灣片源觀測快照，查看權益變化、人工查核下架期限，並重新安排觀影計畫。
         </p>

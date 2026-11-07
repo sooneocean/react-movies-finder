@@ -159,3 +159,15 @@ MIT License. Copyright (c) 2020 Lazhari.
 - 全部訂閱子集合最多64種確定性計算；每個看片計畫仍採Greedy基準，不保證全域最優。訂閱費用僅是情境估計，**不會登入或取消任何平台**。
 - 同一品味護照也會套用到`/lab`、`/lab/tw`及`/lab/radar`的排程；不會送到Jev。
 - 詳見[設計決策](docs/watchpilot/ADR-006-TASTE-SUBSCRIPTIONS.md)與[PR #6驗收](docs/watchpilot/QA-STRATEGY.md)。
+
+### 真實台灣片源逐部交叉核對（PR #8）
+
+- 在`/lab/tw`用自己的TMDB Key搜尋、加入最多20部電影到`/lab/radar`，再進入`/lab/verify`逐部比較OTT平台的實際觀看權益。
+- 手動記錄你實際查看的作品、平台、觀看類型（訂閱／免費／含廣告／租借／購買／未找到／無法確認）、查核時間及HTTPS連結。
+- TMDB與人工查核若不同，會標示「資料差異」；任一來源超過72小時或TMDB更新後未重新確認，就不再採用該筆。
+- 只有同一部電影／平台／訂閱或免費權益近期相符的結果，才可進入7天研究排程；**不會升級成平台官方認證，也不能直接作為退訂建議**。
+- 以至少20部作品、兩平台各5筆及80%一致率作為研究樣本門檻（只是一個內部驗收門檻，不是完整台灣OTT片庫準確率）。
+- 無API Key時可在`/lab/verify`進行兩部合成作品的離線Fixture演練，不會保存至真實查核紀錄。
+- 交叉核對只保存少量必要欄位在本機localStorage，不上傳官方資料庫、個人登入資訊或第三方片庫快照。
+- 人工核對官方下架日的`expiryEvidence`已修復資料轉換遺失問題；與可觀看性仍是兩個獨立證據。
+- 詳情見[資料品質決策](docs/watchpilot/ADR-008-TW-CROSSCHECK.md)與[QA檢查清單](docs/watchpilot/QA-TW-CROSSCHECK.md)。

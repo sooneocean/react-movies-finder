@@ -178,8 +178,8 @@ export function toResearchCandidate(item: TWTitle, preferredGenres: string[]): C
     id: "tmdb:" + item.tmdbId, title: item.title,
     runtimeMinutes: item.runtimeMinutes, genres: item.genres,
     tasteScore, qualityScore,
-    offers: item.offers.map(({ providerId, region, access, evidence, source, observedOn, expiresOn }) => ({
-      providerId, region, access, evidence, source, observedOn, expiresOn,
+    offers: item.offers.map(({ providerId, region, access, evidence, source, observedOn, expiresOn, expiryEvidence }) => ({
+      providerId, region, access, evidence, source, observedOn, expiresOn, expiryEvidence,
     })),
   };
 }
