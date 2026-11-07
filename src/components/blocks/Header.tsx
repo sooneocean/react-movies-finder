@@ -35,6 +35,7 @@ const navLinks = [
   { href: "/genres", label: "Genres", subtitle: "Browse by category", icon: Layers, color: "bg-green-500/20 text-green-400" },
   { href: "/watchlist", label: "Watchlist", subtitle: "", icon: Bookmark, color: "bg-red-500/20 text-red-400" },
   { href: "/surprise", label: "Surprise Me", subtitle: "Random pick for tonight", icon: Dice5, color: "bg-amber/20 text-amber" },
+  { href: "/lab", label: "觀影實驗室", subtitle: "WatchPilot Lab研究", icon: Clapperboard, color: "bg-amber/20 text-amber" },
 ];
 
 export default function Header() {
