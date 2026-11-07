@@ -36,6 +36,8 @@ export interface PlanInput {
   slots: Slot[];
   candidates: Candidate[];
   observationMaxAgeDays?: number;
+  /** Global time cap for the whole planning period; separate from daily slots. */
+  weeklyBudgetMinutes?: number;
 }
 export type RejectionReason =
   | "already_watched"
@@ -108,6 +110,9 @@ export function planViewing(input: PlanInput): PlanOutput {
       (!Number.isInteger(input.observationMaxAgeDays) || input.observationMaxAgeDays < 0)) {
     throw new Error("Invalid observation age");
   }
+  const requestedMinutes = input.weeklyBudgetMinutes ?? input.slots.reduce((sum, slot) => sum + slot.minutes, 0);
+  if (!Number.isInteger(requestedMinutes) || requestedMinutes < 0) throw new Error("Invalid weekly budget");
+  let remainingBudget = requestedMinutes;
   const slots = input.slots.map(slot => ({
     date: validDay(slot.date),
     remaining: slot.minutes,
@@ -147,7 +152,7 @@ export function planViewing(input: PlanInput): PlanOutput {
     let best: { idx: number; offer: Offer; score: number } | undefined;
     for (let idx = 0; idx < slots.length; idx++) {
       const slot = slots[idx];
-      if (slot.remaining < candidate.runtimeMinutes) continue;
+      if (slot.remaining < candidate.runtimeMinutes || remainingBudget < candidate.runtimeMinutes) continue;
       for (const offer of candidate.offers) {
         if (!eligible(offer, slot.date, input)) continue;
         const value = rank(candidate, offer, slot.date);
@@ -162,6 +167,7 @@ export function planViewing(input: PlanInput): PlanOutput {
       continue;
     }
     slots[best.idx].remaining -= candidate.runtimeMinutes;
+    remainingBudget -= candidate.runtimeMinutes;
     items.push({
       movieId: candidate.id, title: candidate.title, date: slots[best.idx].date,
       runtimeMinutes: candidate.runtimeMinutes, score: best.score,
@@ -175,7 +181,7 @@ export function planViewing(input: PlanInput): PlanOutput {
     b.score - a.score || a.movieId.localeCompare(b.movieId));
   return {
     items, rejections,
-    requestedMinutes: input.slots.reduce((sum, slot) => sum + slot.minutes, 0),
+    requestedMinutes,
     scheduledMinutes: items.reduce((sum, item) => sum + item.runtimeMinutes, 0),
     mode: input.mode, algorithm: "deterministic_greedy_v0",
   };
