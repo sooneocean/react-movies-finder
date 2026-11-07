@@ -120,3 +120,12 @@ MIT License. Copyright (c) 2020 Lazhari.
 - 每次搜尋最多5部電影，來源為TMDB／JustWatch的**第三方觀測**，並非OTT官方授權或下架日證明。
 - 沒有API Key仍可使用`/lab`的合成Fixture模式。
 - 詳細查核流程：[TW驗收清單](docs/watchpilot/QA-TW.md)與[資料來源決策](docs/watchpilot/ADR-002-TMDB-TW.md)。
+
+### 片庫IN／OUT觀測雷達（PR #3）
+
+- 在`/lab/tw`查詢電影後按「加入雷達」，再開`/lab/radar`手動更新台灣片源觀測。
+- `/lab/radar`提供離線合成IN／OUT演練，不需要金鑰。
+- 片庫事件僅是TMDB／JustWatch**觀測結果**；首次收錄不算新上線，片源缺失不等於官方下架。
+- 官方公告日期須由使用者自行核對HTTPS來源後明確標記「人工查核」，才能影響重新排程。
+- 雷達工作區僅儲存於個人瀏覽器localStorage，最多20部作品、每部20個30天內快照，可從介面清除。
+- 使用與限制詳見[雷達驗收清單](docs/watchpilot/QA-RADAR.md)及[設計決策](docs/watchpilot/ADR-003-CATALOG-RADAR.md)。
