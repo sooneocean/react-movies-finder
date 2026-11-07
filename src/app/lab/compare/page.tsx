@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import type { JevDecision, WatchChoice } from "@/lib/watchpilot/decision-ab";
 import { LAB_PROVIDERS } from "@/lib/watchpilot/fixtures";
 
@@ -42,8 +42,7 @@ export default function ComparisonPage() {
     setProviders(values => values.includes(id) ? values.filter(p => p !== id) : [...values,id]);
     setResult(null); setSaved(null);
   }
-  async function run(event: FormEvent<HTMLFormElement>, useJev: boolean) {
-    event.preventDefault();
+  async function run(useJev: boolean) {
     if (busy) return;
     setBusy(true); setError(null); setSaved(null);
     try {
@@ -103,7 +102,7 @@ export default function ComparisonPage() {
           全部作品均為<strong>Fixture虛構資料</strong>。Jev預設停用，只有你點選「呼叫Jev」且本機伺服器明確啟用並配置金鑰後，才可能產生第三方API費用。
         </div>
       </div>
-      <form className="space-y-4 rounded-xl border border-border bg-card p-5" onSubmit={event => run(event,false)}>
+      <form className="space-y-4 rounded-xl border border-border bg-card p-5" onSubmit={event => { event.preventDefault(); void run(false); }}>
         <label className="block space-y-2 text-sm">
           <span>繁體中文觀影需求（不超過400字）</span>
           <textarea rows={3} maxLength={400} value={prompt}
@@ -140,8 +139,7 @@ export default function ComparisonPage() {
           <button type="button" disabled={busy || prompt.trim().length === 0}
             onClick={() => {
               if (window.confirm("這會向TypeSafe Jev發送你的觀影需求，若本機已啟用服務可能產生費用。確定進行？")) {
-                const syntheticEvent = { preventDefault: () => {} } as FormEvent<HTMLFormElement>;
-                void run(syntheticEvent,true);
+                void run(true);
               }
             }}
             className="rounded-lg border border-amber/40 px-4 py-2 font-semibold text-amber disabled:opacity-50">
