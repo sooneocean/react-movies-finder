@@ -106,3 +106,26 @@ export async function searchTWMovies(
   if (results.length > 0 && titles.length === 0) throw new TMDBResearchError("UPSTREAM", 502);
   return { region: "TW", query, checkedAt, titles, warnings, source: "TMDB / JustWatch" };
 }
+
+
+/** One-title-on-demand refresh. Never returns a bulk provider catalog. */
+export async function fetchTWMovieById(
+  rawId: number,
+  apiKey: string | undefined,
+  fetcher: FetchLike = fetch,
+  now: Date = new Date(),
+): Promise<TWTitle> {
+  if (!Number.isSafeInteger(rawId) || rawId <= 0 || rawId > 2147483647) {
+    throw new TMDBResearchError("INVALID_QUERY", 400);
+  }
+  if (!validKey(apiKey)) throw new TMDBResearchError("NO_KEY", 503);
+  if (Number.isNaN(now.getTime())) throw new Error("Invalid clock");
+  const [detail, providers] = await Promise.all([
+    readTMDB("/movie/" + rawId, { language: "zh-TW" }, apiKey, fetcher),
+    readTMDB("/movie/" + rawId + "/watch/providers", {}, apiKey, fetcher),
+  ]);
+  if (!detail || typeof detail !== "object" || !("id" in detail) || detail.id !== rawId) {
+    throw new TMDBResearchError("UPSTREAM", 502);
+  }
+  return normalizeTWMovie(detail, providers, now.toISOString());
+}
