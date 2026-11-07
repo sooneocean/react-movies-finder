@@ -1,6 +1,6 @@
-import { planViewing, type PlanOutput } from "./engine";
-import { parsePreferenceHint } from "./fixtures";
-import { toResearchCandidate, type TWTitle } from "./tmdb-tw";
+import { planViewing, type PlanOutput } from "./engine.ts";
+import { parsePreferenceHint } from "./fixtures.ts";
+import { toResearchCandidate, type TWTitle } from "./tmdb-tw.ts";
 
 export interface TWResearchSettings {
   startDate: string;
