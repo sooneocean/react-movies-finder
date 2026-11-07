@@ -38,7 +38,8 @@ jobs:
 
   browser-smoke:
     name: Browser E2E (Chromium, no API credentials)
-    runs-on: ubuntu-latest
+    # Pinned until Playwright supports the ubuntu26.04 GitHub latest image.
+    runs-on: ubuntu-24.04
     timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
