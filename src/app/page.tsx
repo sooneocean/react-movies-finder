@@ -1,3 +1,6 @@
+// Fetch TMDB at request time, not during credential-free WatchPilot builds.
+export const dynamic = "force-dynamic";
+
 import { HeroSlider } from "@/components/media/hero-slider";
 import { MediaCard } from "@/components/media/media-card";
 import { MediaCarousel } from "@/components/media/media-carousel";
