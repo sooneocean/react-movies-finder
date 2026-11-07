@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { useState, type FormEvent } from "react";
 import { planViewing, type PlanOutput } from "@/lib/watchpilot/engine";
+import { applyTastePassport, loadTastePassport } from "@/lib/watchpilot/taste-passport";
 import {
   LAB_PROVIDERS, makeLabInput, parsePreferenceHint,
 } from "@/lib/watchpilot/fixtures";
@@ -44,6 +45,11 @@ export default function WatchPilotLabPage() {
         startDate, weeklyMinutes: Math.round(weeklyHours * 60),
         subscribedProviders: providers, text: description,
       });
+      // Explicitly apply only this browser's stored taste preferences.
+      const personal = loadTastePassport(window.localStorage);
+      const modified = applyTastePassport(next.candidates, personal);
+      next.candidates = modified.filter(x => !x.excluded).map(x => x.candidate);
+      next.excludedGenres = [...new Set([...next.excludedGenres, ...personal.avoidedGenres])];
       setResult(planViewing(next));
       setPreferences(parsePreferenceHint(description));
     } catch (cause) {
@@ -174,6 +180,16 @@ export default function WatchPilotLabPage() {
           )}
         </section>
       </div>
+      <section className="rounded-xl border border-amber/40 bg-amber/5 p-4 text-sm">
+        <h2 className="font-semibold">個人品味護照與訂閱策略</h2>
+        <p className="mt-1 text-muted-foreground">
+          記錄喜歡與避開的類型、標記看過的電影，再以30天虛構片庫模擬OTT續費與觀看價值。
+          這個離線7天排程也會套用你儲存在本機的品味護照。
+        </p>
+        <Link href="/lab/strategy" className="mt-3 inline-flex rounded-lg border border-amber/50 px-4 py-2 text-amber hover:bg-amber/10">
+          進入品味與訂閱策略研究 →
+        </Link>
+      </section>
       <section className="rounded-xl border border-amber/40 bg-amber/5 p-4 text-sm">
         <h2 className="font-semibold">Jev決策A/B研究</h2>
         <p className="mt-1 text-muted-foreground">免費比較兩種規則排序，或在明確啟用並確認成本後呼叫Jev。所有候選均先通過硬限制。</p>
