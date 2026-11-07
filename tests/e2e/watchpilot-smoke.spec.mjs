@@ -124,6 +124,9 @@ test("TW cross-check demo is fully synthetic, conservative, and gives a bounded 
 
 test("TW cross-check can persist, use, and remove one manually reviewed local observation", async ({ page }) => {
   await page.addInitScript(() => {
+    // Do not replace the underlying TMDB observation on reload: changing its
+    // checkedAt timestamp correctly invalidates earlier human attestation.
+    if (localStorage.getItem("watchpilot-radar-research-v1")) return;
     const now = new Date().toISOString();
     const day = new Date(Date.now() + 8 * 3600000).toISOString().slice(0,10);
     const title = {
