@@ -10,8 +10,9 @@
     "type-check": "tsc --pretty --noEmit",
     "lint": "eslint src/",
     "format": "prettier --write .",
-    "test": "echo \"Info: tests are removed for the time being\" && exit 0",
-    "test-all": "npm run lint && npm run type-check && npm run test"
+    "test": "npm run test:watchpilot",
+    "test-all": "npm run lint && npm run type-check && npm run test",
+    "test:watchpilot": "node --experimental-strip-types --test tests/watchpilot-*.test.mjs"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",
