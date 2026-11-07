@@ -282,7 +282,15 @@ export default function TWCatalogResearchPage() {
         </section>
       </div>
       <footer className="rounded-xl border border-border p-4 text-xs text-muted-foreground">
-        <strong>資料來源：TMDB／JustWatch。</strong>
+        <div className="mb-2 flex flex-wrap items-center gap-3">
+          <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer" aria-label="TMDB官方網站">
+            {/* TMDB官方核准標誌；保持原比例與色彩，不代表TMDB認可本研究。 */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img alt="TMDB" width={95} height={28}
+              src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg" />
+          </a>
+          <strong>資料來源：TMDB／JustWatch。</strong>
+        </div>
         觀看平台資訊由TMDB透過JustWatch合作資料提供，需進一步以各平台確認。
         <p className="mt-1">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
         <a className="mt-2 inline-block text-amber underline"
