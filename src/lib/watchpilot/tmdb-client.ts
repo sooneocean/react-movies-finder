@@ -2,7 +2,6 @@
  * Server-only TMDB client for the Taiwanese personal research view.
  * Never place an API key in the browser or in a public fixture.
  */
-import "server-only";
 import { normalizeTWMovie, type TWTitle } from "./tmdb-tw";
 
 export type FetchLike = (input: string | URL, init?: RequestInit) => Promise<Response>;
