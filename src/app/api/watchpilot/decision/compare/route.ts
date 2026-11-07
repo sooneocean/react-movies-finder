@@ -59,7 +59,9 @@ export async function POST(request: NextRequest) {
     const source = new Map(input.candidates.map(candidate => [candidate.id, candidate]));
     const candidates: WatchChoice[] = scheduled.items.slice(0, 6).map(item => {
       const candidate = source.get(item.movieId);
-      if (!candidate) throw new Error("Missing planned fixture candidate");
+      if (!candidate || item.evidence !== "FIXTURE") {
+        throw new Error("Non-fixture or missing candidate in offline A/B");
+      }
       return {
         id: item.movieId,
         title: item.title,
