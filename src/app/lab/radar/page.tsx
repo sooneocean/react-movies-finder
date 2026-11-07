@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import type { TWTitle } from "@/lib/watchpilot/tmdb-tw";
 import { generateTWResearchPlan } from "@/lib/watchpilot/research-plan";
+import { loadTastePassport } from "@/lib/watchpilot/taste-passport";
 import { deriveRadarEvents, type RadarEvent, type RadarSnapshot, type ReviewedNotice } from "@/lib/watchpilot/catalog-radar";
 import {
   emptyRadarWorkspace, loadRadarWorkspace, removeTrackedTitle, recordRadarRefreshFailure,
@@ -173,6 +174,7 @@ export default function CatalogRadarPage() {
         startDate, weeklyMinutes: Math.round(weeklyHours * 60),
         dailyMinutes: Math.round(dailyHours * 60),
         subscribedProviders: subscribed, preferenceText: "喜歡科幻、懸疑、犯罪、劇情，不要恐怖片",
+        tastePassport: loadTastePassport(window.localStorage),
       });
       const now = new Date().toISOString();
       const nextPlan = { generatedAt: now, output: result.plan };

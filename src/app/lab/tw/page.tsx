@@ -7,6 +7,7 @@ import {
   generateTWResearchPlan, type TWResearchResult,
 } from "@/lib/watchpilot/research-plan";
 import { LAB_PROVIDERS } from "@/lib/watchpilot/fixtures";
+import { loadTastePassport } from "@/lib/watchpilot/taste-passport";
 import { loadRadarWorkspace, saveRadarWorkspace, upsertTrackedTitle } from "@/lib/watchpilot/radar-workspace";
 
 const ACCESS_LABEL: Record<TWOffer["monetization"], string> = {
@@ -121,6 +122,7 @@ export default function TWCatalogResearchPage() {
         dailyMinutes: Math.round(dailyHours * 60),
         subscribedProviders: subscribed,
         preferenceText: preference,
+        tastePassport: loadTastePassport(window.localStorage),
       });
       setPlan(next);
     } catch (cause) {

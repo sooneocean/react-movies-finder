@@ -149,3 +149,13 @@ MIT License. Copyright (c) 2020 Lazhari.
 - 參考[設計決策](docs/watchpilot/ADR-005-JEV-AB.md)／[PR #5驗收](docs/watchpilot/QA-JEV.md)。
 
 - 2026-11-07 CI：88項離線測試、TypeScript、Lint及無私人Key正式Build通過，請以最新PR Checks為準（歷史成功紀錄：[Actions Run 42360787945](https://github.com/sooneocean/react-movies-finder/actions/runs/42360787945)）。
+
+### 個人品味護照＋30天OTT訂閱策略研究（PR #6）
+
+- 開啟`/lab/strategy`：設定喜歡／避開類型、對合成電影評價與標記已看；資料僅存在本機瀏覽器。
+- 在同一頁輸入OTT月繳／年繳價格、目前有無訂閱、**已付費可用期限**及續費能否避免，執行30天情境比較。
+- 初始價格與所有片庫作品、上下架日期為**明確標記的合成研究Fixture**，不代表任何OTT的實際價格或目前授權。若切換個人金額模式，需自行確認。
+- 四種情境：維持目前訂閱、停止可取消續費、平衡觀影價值與未來費用、最大化觀影價值。已付費部分不會被算成可節省費用。
+- 全部訂閱子集合最多64種確定性計算；每個看片計畫仍採Greedy基準，不保證全域最優。訂閱費用僅是情境估計，**不會登入或取消任何平台**。
+- 同一品味護照也會套用到`/lab`、`/lab/tw`及`/lab/radar`的排程；不會送到Jev。
+- 詳見[設計決策](docs/watchpilot/ADR-006-TASTE-SUBSCRIPTIONS.md)與[PR #6驗收](docs/watchpilot/QA-STRATEGY.md)。
