@@ -89,14 +89,19 @@ export default function StrategyResearchPage() {
   const [saved, setSaved] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   useEffect(() => {
-    setProfile(loadTastePassport(window.localStorage));
-    const cache = readSavedAccounts();
-    if (cache) {
-      setAccounts(cache.accounts);
-      setPriceSource(cache.priceSource);
-      setPenalty(cache.penaltyPer100Twd);
-    }
-    setReady(true);
+    // Load browser-only settings after hydration; never touch localStorage in SSR.
+    // Scheduling this update also avoids synchronous setState inside an effect.
+    const timer = window.setTimeout(() => {
+      setProfile(loadTastePassport(window.localStorage));
+      const cache = readSavedAccounts();
+      if (cache) {
+        setAccounts(cache.accounts);
+        setPriceSource(cache.priceSource);
+        setPenalty(cache.penaltyPer100Twd);
+      }
+      setReady(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
   const sampleWorks = useMemo(() => makeLabInput({
     startDate, weeklyMinutes: Math.round(weeklyHours * 60),
@@ -118,7 +123,7 @@ export default function StrategyResearchPage() {
     setError(null); setResult(null);
     try {
       const original = profile.entries.find(x => x.workId === id);
-      const next = value === "none" && !watched
+      const next = value === "none" && !(watched ?? original?.watched ?? false)
         ? removeTasteWork(profile, id)
         : rateTasteWork(profile, id, genres,
             value === "none" ? (original?.opinion ?? "neutral") : value as Opinion,
