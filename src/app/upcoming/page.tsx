@@ -1,3 +1,6 @@
+// Fetch TMDB at request time, not during credential-free WatchPilot builds.
+export const dynamic = "force-dynamic";
+
 import { discoverMovies, fetchMovieGenres } from "@/lib/api/tmdb";
 import { getBackdropURL } from "@/lib/movies";
 import { cn } from "@/lib/utils";
