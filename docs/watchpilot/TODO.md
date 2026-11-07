@@ -82,7 +82,8 @@
 - [x] 繁中A/B頁與個人本機回饋紀錄
 - [x] 14項模組本機Node.js 22測試（尚須GitHub完整CI）
 - [x] 新增feat/watchpilot-*分支驗證工作流程
-- [ ] 確認完整GitHub測試／型別檢查／Lint均成功
+- [x] GitHub Actions Run 42360787945：88項測試、型別檢查、Lint成功
+- [x] 無私人TMDB Key的Next.js正式Build成功
 - [ ] 取得API金鑰後執行至少3組付費Jev真實回覆（用戶自願）
 - [ ] 真人瀏覽器操作與迭代驗收
 - [ ] 後續延伸到真實片單，先評估資料授權與隱私
