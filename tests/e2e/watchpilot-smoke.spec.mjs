@@ -78,7 +78,7 @@ test("Taiwan movie lookup without credentials fails explicitly without false del
   await page.goto("/lab/tw");
   await page.getByRole("textbox", { name: "輸入電影名稱" }).fill("星際效應");
   await page.getByRole("button", { name: "搜尋" }).click();
-  await expect(page.getByRole("alert")).toContainText("請先在本機.env.local設定MOVIE_DB_API_KEY");
+  await expect(page.getByRole("alert").filter({ hasText: "請先在本機.env.local設定MOVIE_DB_API_KEY" })).toBeVisible();
   await expect(page.getByText("TMDB未提供台灣觀看平台資訊；不等於確定下架。")).toHaveCount(0);
 });
 
