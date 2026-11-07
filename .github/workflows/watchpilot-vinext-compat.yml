@@ -5,7 +5,7 @@ on:
       - feat/watchpilot-cloudflare-launch
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   check-nextjs-cloudflare:
     runs-on: ubuntu-24.04
@@ -44,6 +44,18 @@ jobs:
           MOVIE_DB_API_KEY: ""
           TYPESAFE_API_KEY: ""
         run: npm run build:vinext
+      - name: Persist non-destructive vinext migration on dedicated branch
+        if: success() && github.ref == 'refs/heads/feat/watchpilot-cloudflare-launch'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # The repository is npm-first. Remove the unused bun lockfile only
+          # in this separate migration branch to prevent ambiguous install tools.
+          git add -A package.json package-lock.json bun.lock .gitignore vite.config.ts cloudflare.config.ts
+          git commit -m "build(cloudflare): prepare vinext Worker configs and pinned npm dependencies"
+          git push origin HEAD:refs/heads/feat/watchpilot-vinext-full
       - name: Show only generated config filenames
         if: always()
         run: |
