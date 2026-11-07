@@ -103,6 +103,10 @@ export function saveHumanCheck(store: CheckStore, entry: HumanCheck): CheckStore
   const existing = store.checks.filter(x => !(x.workId === check.workId && x.providerId === check.providerId));
   return { version: 1, checks: [...existing, check].slice(-200) };
 }
+export function removeHumanCheck(store: CheckStore, workId: string, providerId: string): CheckStore {
+  const safe = validateCheckStore(store);
+  return {version:1, checks:safe.checks.filter(c=>c.workId!==workId || c.providerId!==providerId)};
+}
 export function validateCheckStore(value: unknown): CheckStore {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw Error("Invalid check storage");
   const v = value as Record<string,unknown>;
