@@ -30,10 +30,16 @@ export interface Slot {
   date: string;
   minutes: number;
 }
+export interface ProviderAccessPeriod {
+  startOn: string;
+  endOn: string;
+}
 export interface PlanInput {
   mode: Mode;
   region: string;
   subscribedProviders: string[];
+  /** Optional date-scoped subscription access: do not confuse subscription renewal with license expiry. */
+  providerAccessPeriods?: Record<string, ProviderAccessPeriod[]>;
   excludedGenres: string[];
   slots: Slot[];
   candidates: Candidate[];
@@ -83,8 +89,12 @@ function daysBetween(start: string, end: string): number {
 }
 function eligible(offer: Offer, date: string, input: PlanInput): boolean {
   if (offer.region !== input.region) return false;
+  const subscribedOnDay = input.providerAccessPeriods
+    ? (input.providerAccessPeriods[offer.providerId] ?? []).some(period =>
+        date >= period.startOn && date <= period.endOn)
+    : input.subscribedProviders.includes(offer.providerId);
   if (offer.access !== "free" &&
-      !(offer.access === "subscription" && input.subscribedProviders.includes(offer.providerId))) return false;
+      !(offer.access === "subscription" && subscribedOnDay)) return false;
   if (input.mode === "fixture"
       ? offer.evidence !== "FIXTURE"
       : offer.evidence !== "VERIFIED" && offer.evidence !== "OBSERVED") return false;
@@ -115,6 +125,17 @@ export function planViewing(input: PlanInput): PlanOutput {
   if (input.observationMaxAgeDays !== undefined &&
       (!Number.isInteger(input.observationMaxAgeDays) || input.observationMaxAgeDays < 0)) {
     throw new Error("Invalid observation age");
+  }
+  if (input.providerAccessPeriods) {
+    for (const periods of Object.values(input.providerAccessPeriods)) {
+      if (!Array.isArray(periods) || periods.length > 12) throw new Error("Invalid subscription access periods");
+      for (const period of periods) {
+        if (!period || validDay(period.startOn) !== period.startOn ||
+          validDay(period.endOn) !== period.endOn || period.startOn > period.endOn) {
+          throw new Error("Invalid subscription access period");
+        }
+      }
+    }
   }
   const requestedMinutes = input.weeklyBudgetMinutes ?? input.slots.reduce((sum, slot) => sum + slot.minutes, 0);
   if (!Number.isInteger(requestedMinutes) || requestedMinutes < 0) throw new Error("Invalid weekly budget");
