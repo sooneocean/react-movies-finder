@@ -68,6 +68,9 @@ export default async function Home() {
           <Link href="/lab/strategy" className="rounded-lg border border-amber/40 px-5 py-3 font-medium text-amber">
             品味護照與訂閱研究
           </Link>
+          <Link href="/lab/verify" className="rounded-lg border border-amber/40 px-5 py-3 font-medium text-amber">
+            台灣片源交叉驗證
+          </Link>
           <Link href="/lab/radar" className="rounded-lg border border-border px-5 py-3 font-medium">
             片庫雷達離線演練
           </Link>
