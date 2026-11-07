@@ -1,6 +1,7 @@
 import { planViewing, type PlanOutput } from "./engine.ts";
 import { parsePreferenceHint } from "./fixtures.ts";
 import { toResearchCandidate, type TWTitle } from "./tmdb-tw.ts";
+import { applyTastePassport, validateTastePassport, type TastePassport } from "./taste-passport.ts";
 
 export interface TWResearchSettings {
   startDate: string;
@@ -8,6 +9,7 @@ export interface TWResearchSettings {
   dailyMinutes: number;
   subscribedProviders: string[];
   preferenceText: string;
+  tastePassport?: TastePassport;
 }
 export interface TWResearchResult {
   plan: PlanOutput;
@@ -40,6 +42,12 @@ export function generateTWResearchPlan(titles: TWTitle[], settings: TWResearchSe
     }
     return [projected];
   });
+  const personal = settings.tastePassport ? validateTastePassport(settings.tastePassport) : null;
+  const adapted = personal ? applyTastePassport(candidates, personal) : null;
+  const plannedCandidates = adapted ? adapted.filter(x => !x.excluded).map(x => x.candidate) : candidates;
+  const excludedGenres = personal
+    ? [...new Set([...preference.excludedGenres, ...personal.avoidedGenres])]
+    : preference.excludedGenres;
   const slots = Array.from({ length: 7 }, (_, idx) => ({
     date: dateAfter(settings.startDate, idx),
     minutes: dailyMinutes,
@@ -48,8 +56,8 @@ export function generateTWResearchPlan(titles: TWTitle[], settings: TWResearchSe
     mode: "research",
     region: "TW",
     subscribedProviders: settings.subscribedProviders,
-    excludedGenres: preference.excludedGenres,
-    slots, candidates,
+    excludedGenres,
+    slots, candidates: plannedCandidates,
     weeklyBudgetMinutes: weeklyMinutes,
     observationMaxAgeDays: 7,
   });
