@@ -35,6 +35,26 @@ jobs:
           test -f vite.config.ts
           test -d .cloudflare/output || test -d dist
           echo "Vinext Cloudflare Worker build validated without credentials."
+      - name: Install isolated Chromium testing dependencies
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run full vinext Worker local browser preview
+        env:
+          CI: "true"
+          MOVIE_DB_API_KEY: ""
+          TYPESAFE_API_KEY: ""
+          WATCHPILOT_ENABLE_JEV: "0"
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: npx playwright test --config=tests/cloudflare/vinext-preview.config.mjs
+      - name: Preserve vinext preview traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watchpilot-vinext-preview-failure
+          path: tests/cloudflare/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Preserve build errors
         if: failure()
         uses: actions/upload-artifact@v4
