@@ -88,7 +88,7 @@ export default function TWVerificationPage() {
   const usedChecks=demo?synthetic.checks:checks;
   const checked=useMemo(()=>reviewCoverage(titles,usedChecks),[titles,usedChecks]);
   const providers=useMemo(()=>{
-    const map=new Map(registered.map(x=>[x.id,x.name]));
+    const map=new Map<string,string>(registered.map(x=>[x.id,x.name] as [string,string]));
     for(const t of titles)for(const o of t.offers)map.set(o.providerId,o.providerName);
     return [...map.entries()].map(([id,name])=>({id,name}));
   },[titles]);
