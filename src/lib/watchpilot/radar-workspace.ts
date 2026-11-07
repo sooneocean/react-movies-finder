@@ -74,6 +74,27 @@ export function upsertTrackedTitle(
   }).concat(entry);
   return trimAll({ ...workspace, tracked, snapshots }, now);
 }
+/**
+ * Audit a failed refresh without overwriting prior valid offers or claiming removal.
+ * The missing data is not an empty successful catalog snapshot.
+ */
+export function recordRadarRefreshFailure(
+  workspace: RadarWorkspace, tmdbId: number, now: Date = new Date(),
+): RadarWorkspace {
+  const title = workspace.tracked.find(item => item.tmdbId === tmdbId);
+  if (!title || Number.isNaN(now.getTime())) throw new Error("Invalid tracked refresh");
+  const snapshot: RadarSnapshot = {
+    workId: "tmdb:" + tmdbId, workTitle: title.title, region: "TW",
+    source: "TMDB_JUSTWATCH", observedAt: now.toISOString(), status: "FAILED",
+    offers: [], error: "Refresh failed; availability unchanged",
+  };
+  return trimAll({
+    ...workspace,
+    snapshots: workspace.snapshots.filter(existing =>
+      existing.workId !== snapshot.workId || existing.observedAt !== snapshot.observedAt).concat(snapshot),
+  }, now);
+}
+
 export function removeTrackedTitle(workspace: RadarWorkspace, tmdbId: number): RadarWorkspace {
   const id = "tmdb:" + tmdbId;
   return {
