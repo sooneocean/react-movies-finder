@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useState, type FormEvent } from "react";
 import { planViewing, type PlanOutput } from "@/lib/watchpilot/engine";
 import {
@@ -172,10 +174,15 @@ export default function WatchPilotLabPage() {
           )}
         </section>
       </div>
+      <section className="rounded-xl border border-amber/40 bg-amber/5 p-4 text-sm">
+        <h2 className="font-semibold">台灣TMDB真實資料研究</h2>
+        <p className="mt-1 text-muted-foreground">已新增以自己API Key搜尋台灣第三方片源觀測、加入候選及產生排程的實驗頁。</p>
+        <Link href="/lab/tw" className="mt-3 inline-flex rounded-lg border border-amber/50 px-4 py-2 text-amber hover:bg-amber/10">進入台灣片源研究 →</Link>
+      </section>
       <section className="rounded-xl border border-border p-4 text-sm text-muted-foreground">
         <h2 className="mb-2 font-medium text-foreground">研究進度</h2>
         已完成：離線Fixture、來源可信度隔離、觀看時數限制、排除條件及自動化測試。
-        尚未完成：TMDB台灣片源即時接入、Jev API、收藏同步、下架監控及訂閱最佳化。
+        尚未完成：真實台灣片源抽樣驗證、Jev API、收藏同步、下架監控及訂閱最佳化。
       </section>
     </main>
   );
