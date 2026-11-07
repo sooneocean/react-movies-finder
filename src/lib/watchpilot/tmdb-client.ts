@@ -6,11 +6,15 @@ import { normalizeTWMovie, type TWTitle } from "./tmdb-tw.ts";
 
 export type FetchLike = (input: string | URL, init?: RequestInit) => Promise<Response>;
 export class TMDBResearchError extends Error {
+  readonly code: "INVALID_QUERY" | "NO_KEY" | "UPSTREAM" | "RATE_LIMITED";
+  readonly status: number;
   constructor(
-    public readonly code: "INVALID_QUERY" | "NO_KEY" | "UPSTREAM" | "RATE_LIMITED",
-    public readonly status: number,
+    code: "INVALID_QUERY" | "NO_KEY" | "UPSTREAM" | "RATE_LIMITED",
+    status: number,
   ) {
     super(code);
+    this.code = code;
+    this.status = status;
     this.name = "TMDBResearchError";
   }
 }
