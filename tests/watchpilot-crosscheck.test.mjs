@@ -156,3 +156,15 @@ test("unknown future or past scheduling windows are rejected instead of invented
   assert.throws(()=>generateCrossCheckedTWPlan([title()],store,settings({startDate:"2026-11-07"}),now));
   assert.throws(()=>generateCrossCheckedTWPlan([title()],store,settings({startDate:"2026-11-16"}),now));
 });
+
+test("independently reviewed official expiry survives TMDB projection and blocks later viewing",()=>{
+  const x=title();
+  x.offers[0].expiresOn="2026-11-09";
+  x.offers[0].expiryEvidence="USER_REVIEWED_OFFICIAL";
+  const later=new Date("2026-11-10T08:00:00.000Z");
+  const r=generateCrossCheckedTWPlan([x],{version:1,checks:[check()]},
+    settings({startDate:"2026-11-10"}),later);
+  assert.equal(r.coverage.matched,1);
+  assert.equal(r.eligibleCandidateCount,1);
+  assert.equal(r.plan.plan.items.length,0);
+});
