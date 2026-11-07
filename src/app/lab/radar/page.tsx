@@ -88,8 +88,15 @@ export default function CatalogRadarPage() {
     [workspace, demo],
   );
   const selectedTitle = workspace.tracked.find(item => "tmdb:" + item.tmdbId === chosenWork);
-  const providers = selectedTitle?.offers.filter(offer => offer.access === "subscription")
-    .map(offer => ({ id: offer.providerId, name: offer.providerName })) ?? [];
+  const providers = [
+    ...(selectedTitle?.offers.filter(offer => offer.access === "subscription")
+      .map(offer => ({ id: offer.providerId, name: offer.providerName })) ?? []),
+    ...workspace.snapshots
+      .filter(snap => snap.workId === chosenWork && snap.status === "SUCCESS")
+      .flatMap(snap => snap.offers.map(offer => ({
+        id: offer.providerId, name: offer.providerName,
+      }))),
+  ];
   const dedupProviders = [...new Map(providers.map(provider => [provider.id, provider])).values()];
   const subscriptionOptions = [...new Map(workspace.tracked.flatMap(item => item.offers)
     .filter(offer => offer.access === "subscription")
