@@ -1,0 +1,33 @@
+name: WatchPilot research validation
+
+on:
+  push:
+    branches:
+      - "feat/watchpilot-*"
+  pull_request:
+    branches:
+      - master
+      - "feat/watchpilot-*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: WatchPilot tests (no API credentials)
+        run: npm run test:watchpilot
+      - name: TypeScript check
+        run: npm run type-check
+      - name: ESLint
+        run: npm run lint
