@@ -103,3 +103,55 @@ test("Free rules A/B shows two baselines and does not silently call paid Jev", a
   await expect(page.getByText("A｜排程分數規則")).toBeVisible();
   await expect(page.getByText("B｜純品質分數規則")).toBeVisible();
 });
+
+
+test("TW cross-check demo is fully synthetic, conservative, and gives a bounded plan", async ({ page }) => {
+  await page.goto("/lab/verify");
+  await expect(page.getByRole("heading", { name: "台灣OTT片源交叉驗證" })).toBeVisible();
+  await expect(page.getByText("尚未追蹤真實電影。")).toBeVisible();
+  await page.getByRole("button", { name: "顯示離線Fixture演練" }).click();
+  await expect(page.getByText(/以下兩部電影、平台與檢查結果全部是合成資料/)).toBeVisible();
+  await expect(page.getByText(/尚未達到擴大訂閱策略研究的樣本門檻/)).toBeVisible();
+  await expect(page.getByText(/與TMDB觀測不一致/)).toBeVisible();
+  await page.getByRole("button", { name: "產生交叉驗證研究片單" }).click();
+  await expect(page.getByText(/符合雙來源條件的候選1部/)).toBeVisible();
+  await expect(page.getByText("Fixture演練電影A").last()).toBeVisible();
+  await expect(page.getByText(/不可依此直接取消或購買OTT訂閱/)).toBeVisible();
+  await page.getByRole("button", { name: "結束Fixture演練" }).click();
+  await expect(page.getByText(/以下兩部電影、平台與檢查結果全部是合成資料/)).toHaveCount(0);
+  await expect(page.getByText("目前追蹤0部電影；0筆人工核對。")).toBeVisible();
+});
+
+test("TW cross-check can persist, use, and remove one manually reviewed local observation", async ({ page }) => {
+  await page.addInitScript(() => {
+    const now = new Date().toISOString();
+    const day = new Date(Date.now() + 8 * 3600000).toISOString().slice(0,10);
+    const title = {
+      tmdbId: 7771, title: "E2E合成電影", originalTitle: "E2E test",
+      year:"2026", runtimeMinutes:110, genres:["science-fiction"],genreLabels:["科幻"],
+      overview:"",posterPath:null,voteAverage:8,voteCount:100, region:"TW",
+      checkedAt:now,evidence:"OBSERVED",source:"TMDB / JustWatch",
+      availabilityStatus:"TW_OFFERS_FOUND",watchLink:null,
+      offers:[{providerId:"netflix",providerName:"Netflix",tmdbProviderId:8,
+        monetization:"flatrate",region:"TW",access:"subscription",evidence:"OBSERVED",
+        source:"TMDB / JustWatch (TW)",observedOn:day,expiresOn:null}],
+    };
+    localStorage.setItem("watchpilot-radar-research-v1",
+      JSON.stringify({version:1,tracked:[title],snapshots:[],reviewedNotices:[]}));
+  });
+  await page.goto("/lab/verify");
+  await expect(page.getByText("目前追蹤1部電影；0筆人工核對。")).toBeVisible();
+  await page.getByLabel("追蹤電影").selectOption("tmdb:7771");
+  await page.getByLabel("核對的平台").selectOption("netflix");
+  await page.getByLabel("你親自查閱的HTTPS參考網址").fill("https://www.netflix.com/watch/123");
+  await page.getByText("我已親自核對這部電影、平台與權益", { exact: false }).click();
+  await page.getByRole("button", { name: "儲存人工查核" }).click();
+  await expect(page.getByText("目前追蹤1部電影；1筆人工核對。")).toBeVisible();
+  await expect(page.getByText(/與TMDB觀測一致/)).toBeVisible();
+  await page.reload();
+  await expect(page.getByText("目前追蹤1部電影；1筆人工核對。")).toBeVisible();
+  await page.getByRole("button", { name: "產生交叉驗證研究片單" }).click();
+  await expect(page.getByText(/符合雙來源條件的候選1部/)).toBeVisible();
+  await page.getByRole("button", { name: "刪除" }).click();
+  await expect(page.getByText("目前追蹤1部電影；0筆人工核對。")).toBeVisible();
+});
