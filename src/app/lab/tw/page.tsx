@@ -136,6 +136,9 @@ export default function TWCatalogResearchPage() {
         <Link href="/lab" className="text-sm text-amber hover:underline">返回離線研究實驗室</Link>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber">WatchPilot Lab / TW API Research</p>
         <h1 className="text-3xl font-bold">台灣OTT片源研究</h1>
+        <Link href="/lab/verify" className="inline-flex rounded-lg border border-amber/50 px-4 py-2 text-sm font-medium text-amber hover:bg-amber/10">
+          進入20部電影交叉驗證
+        </Link>
         <Link href="/lab/radar" className="inline-flex rounded-lg border border-amber/50 px-4 py-2 text-sm font-medium text-amber hover:bg-amber/10">
           查看片庫IN／OUT雷達
         </Link>
