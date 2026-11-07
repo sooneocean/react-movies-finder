@@ -4,7 +4,7 @@ import {
   deriveRadarEvents, validateReviewedNotice, trimRadarSnapshots,
 } from "../src/lib/watchpilot/catalog-radar.ts";
 import {
-  emptyRadarWorkspace, upsertTrackedTitle, removeTrackedTitle,
+  emptyRadarWorkspace, upsertTrackedTitle, removeTrackedTitle, recordRadarRefreshFailure,
   upsertReviewedNotice, radarSnapshotFromTitle, withReviewedExpiry,
   loadRadarWorkspace, saveRadarWorkspace, RADAR_STORAGE_KEY,
 } from "../src/lib/watchpilot/radar-workspace.ts";
@@ -176,4 +176,13 @@ test("workspace remains local, bounded, and recovers from malformed persisted st
   assert.ok(memory.has(RADAR_STORAGE_KEY));
   store.setItem(RADAR_STORAGE_KEY, "{broken");
   assert.deepEqual(loadRadarWorkspace(store), emptyRadarWorkspace());
+});
+
+test("failed refresh is auditable and cannot imply removal", () => {
+  const initial = upsertTrackedTitle(emptyRadarWorkspace(), title(), new Date("2026-11-08T00:00:00Z"));
+  const failed = recordRadarRefreshFailure(initial, 42, new Date("2026-11-09T00:00:00Z"));
+  assert.equal(failed.tracked[0].offers.length, 1);
+  assert.deepEqual(kinds(failed.snapshots), ["BASELINE", "SOURCE_FAILED"]);
+  assert.equal(failed.snapshots[1].offers.length, 0);
+  assert.equal(failed.snapshots[1].status, "FAILED");
 });
