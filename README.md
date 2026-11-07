@@ -109,7 +109,7 @@ MIT License. Copyright (c) 2020 Lazhari.
 這個Fork新增免費、非營利、開源的OTT觀影決策研究功能；上游Screenbox與其MIT授權保留不變。
 
 - 打開 `/lab` 可使用**完全合成的Fixture**測試7天觀影排程，**不需要API Key**。
-- 所有Fixture片名、片源、期限均非真實OTT資訊；即時片庫、Jev及訂閱最佳化尚未整合。
+- 所有Fixture片名、片源、期限均非真實OTT資訊；Jev只在獨立的`/lab/compare`選配A/B研究中使用，不在此離線排程頁直接呼叫；訂閱最佳化尚未整合。
 - 執行 `npm run test:watchpilot`；詳細規格與驗收流程見 [PRD](docs/watchpilot/PRD.md)／[TODO](docs/watchpilot/TODO.md)／[QA](docs/watchpilot/QA.md)。
 - 第三方影視資料依資料供應商條款使用；請參閱 [DATA-POLICY](docs/watchpilot/DATA-POLICY.md)。
 
@@ -138,3 +138,14 @@ MIT License. Copyright (c) 2020 Lazhari.
 - 沒有對應LINE TV觀測片源的作品不會被憑空視為可看。
 - 原始貼入的文字不提交GitHub，不自動同步到外部服務；本研究仍遵守來源網站條款。
 - 見[PR #4驗收](docs/watchpilot/QA-LINE-TV.md)及[來源Adapter設計決策](docs/watchpilot/ADR-004-LINE-TV-OFFICIAL.md)。
+
+### 規則式與Jev決策A/B實驗（PR #5）
+
+- 開啟`/lab/compare`：不需要Key即可比較兩種免費規則式首選（排程分數／品質分數）。
+- 要執行付費Jev Choice，需在本機`.env.local`設定`TYPESAFE_API_KEY`及`WATCHPILOT_ENABLE_JEV=1`，使用開發模式`npm run dev`，並在頁面上**主動確認本次請求可能計費**。
+- 預設不啟用Jev。每次只比較最多6部已通過硬限制的**合成Fixture**電影，不把真實第三方片庫大規模發送到模型。
+- 任何JeV錯誤均有明確訊息，單次呼叫不自動重試；30秒冷卻僅供單一本機程序降低誤觸風險。
+- 當前介面只做「今晚先看哪部」研究，Jev不能覆寫片庫證據、下架日期或排程限制。
+- 參考[設計決策](docs/watchpilot/ADR-005-JEV-AB.md)／[PR #5驗收](docs/watchpilot/QA-JEV.md)。
+
+- 2026-11-07 CI：88項離線測試、TypeScript、Lint及無私人Key正式Build通過，請以最新PR Checks為準（歷史成功紀錄：[Actions Run 42360787945](https://github.com/sooneocean/react-movies-finder/actions/runs/42360787945)）。

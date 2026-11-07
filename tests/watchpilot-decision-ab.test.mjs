@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createExperiment,makeJevRequest,parseJevDecision} from '../src/lib/watchpilot/decision-ab.ts';
+const c=(id, score,quality=80)=>({id,title:'研究電影'+id,genres:['science-fiction'],runtimeMinutes:100,planScore:score,tasteScore:85,qualityScore:quality,providerId:'netflix',evidence:'FIXTURE'});
+const exp=()=>createExperiment('今晚想看科幻與懸疑', [c('a',90,70),c('b',70,95)],'fixture');
+test('baseline and quality-only challenger use identical candidates',()=>{const e=exp();assert.equal(e.baselinePick,'a');assert.equal(e.qualityPick,'b');assert.equal(e.candidates.length,2)});
+test('Jev choices map opaque option codes onto approved IDs',()=>{const {body,labels}=makeJevRequest(exp());assert.deepEqual(Object.keys(body.questions.tonight.criteria),['opt_1','opt_2']);assert.deepEqual(labels,{opt_1:'a',opt_2:'b'});assert.equal(body.model,'jev-latest')});
+test('Jev valid reply maps to candidate ID, preserves model and cost usage',()=>{const {labels}=makeJevRequest(exp());const r=parseJevDecision({model:'jev-1.13.0',answers:{tonight:{type:'choice',choice:'opt_2',probabilities:{opt_1:0.2,opt_2:0.8},confidence:0.6}},usage:{input_tokens:123}},labels);assert.equal(r.selectedId,'b');assert.equal(r.inputTokens,123);assert.equal(r.probabilities.b,0.8)});
+test('no model usage means unknown, not zero',()=>{const {labels}=makeJevRequest(exp());const r=parseJevDecision({model:'jev-latest',answers:{tonight:{choice:'opt_1',probabilities:{opt_1:0.8,opt_2:0.2}}}},labels);assert.equal(r.inputTokens,null);assert.equal(r.confidence,null)});
+test('forbidden response option is rejected',()=>{const {labels}=makeJevRequest(exp());assert.throws(()=>parseJevDecision({model:'jev',answers:{tonight:{choice:'opt_3',probabilities:{opt_1:0.5,opt_2:0.5}}}},labels))});
+test('malformed probabilities fail, no fake fallback to AI',()=>{const {labels}=makeJevRequest(exp());for(const x of [-0.1,1.1,NaN,'0.5'])assert.throws(()=>parseJevDecision({model:'jev',answers:{tonight:{choice:'opt_1',probabilities:{opt_1:x,opt_2:0.5}}}},labels))});
+test('too few or too many candidates reject',()=>{assert.throws(()=>createExperiment('hi',[c('a',90)],'fixture'));assert.throws(()=>createExperiment('hi',Array.from({length:7},(_,i)=>c('x'+i,60)),'fixture'))});
+test('mixed fixture and research source is prohibited',()=>{assert.throws(()=>createExperiment('hi',[c('a',90),{...c('b',80),evidence:'OBSERVED'}],'fixture'))});
+test('invalid scores, duplicate ID or malformed prompt reject',()=>{assert.throws(()=>createExperiment('hi',[c('a',90),c('a',80)],'fixture'));assert.throws(()=>createExperiment('hi',[c('a',-1),c('b',80)],'fixture'));assert.throws(()=>createExperiment('\u0000',[c('a',90),c('b',80)],'fixture'))});

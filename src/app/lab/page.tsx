@@ -175,6 +175,13 @@ export default function WatchPilotLabPage() {
         </section>
       </div>
       <section className="rounded-xl border border-amber/40 bg-amber/5 p-4 text-sm">
+        <h2 className="font-semibold">Jev決策A/B研究</h2>
+        <p className="mt-1 text-muted-foreground">免費比較兩種規則排序，或在明確啟用並確認成本後呼叫Jev。所有候選均先通過硬限制。</p>
+        <Link href="/lab/compare" className="mt-3 inline-flex rounded-lg border border-amber/50 px-4 py-2 text-amber hover:bg-amber/10">
+          進入A/B決策實驗 →
+        </Link>
+      </section>
+      <section className="rounded-xl border border-amber/40 bg-amber/5 p-4 text-sm">
         <h2 className="font-semibold">台灣TMDB真實資料研究</h2>
         <p className="mt-1 text-muted-foreground">已新增以自己API Key搜尋台灣第三方片源觀測、加入候選及產生排程的實驗頁。</p>
         <Link href="/lab/tw" className="mt-3 inline-flex rounded-lg border border-amber/50 px-4 py-2 text-amber hover:bg-amber/10">進入台灣片源研究 →</Link>
