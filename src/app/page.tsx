@@ -1,6 +1,7 @@
 // Fetch TMDB at request time, not during credential-free WatchPilot builds.
 export const dynamic = "force-dynamic";
 
+import Link from "next/link";
 import { HeroSlider } from "@/components/media/hero-slider";
 import { MediaCard } from "@/components/media/media-card";
 import { MediaCarousel } from "@/components/media/media-carousel";
@@ -47,6 +48,34 @@ function renderCarouselItems(items: (Movie | TVShow)[]) {
 }
 
 export default async function Home() {
+  const tmdbKey = process.env.MOVIE_DB_API_KEY;
+  if (!tmdbKey || tmdbKey === "your_tmdb_api_key_here") {
+    return (
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-6 px-4 py-12 sm:px-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber">WatchPilot Lab / Local Research</p>
+        <h1 className="text-3xl font-bold sm:text-4xl">台灣OTT觀影決策研究</h1>
+        <p className="max-w-2xl text-muted-foreground">
+          尚未設定TMDB API Key。你仍可直接使用免費的合成片庫研究、7天觀影排程、
+          片庫變動演練及規則式決策比較，無須第三方金鑰。
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <Link href="/lab" className="rounded-lg bg-amber px-5 py-3 font-semibold text-black">
+            進入觀影實驗室
+          </Link>
+          <Link href="/lab/compare" className="rounded-lg border border-amber/40 px-5 py-3 font-medium text-amber">
+            免費A/B決策比較
+          </Link>
+          <Link href="/lab/radar" className="rounded-lg border border-border px-5 py-3 font-medium">
+            片庫雷達離線演練
+          </Link>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          若要使用原始Screenbox電影搜尋與台灣片源研究，請在本機.env.local設定自己的MOVIE_DB_API_KEY並重新啟動服務。
+          本網站不提供影片播放或未經確認的版權到期資訊。
+        </p>
+      </main>
+    );
+  }
   const {
     trendingDay,
     trendingWeek,
