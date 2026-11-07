@@ -27,3 +27,19 @@ test("vinext source verification renders offline fixture without exposing TMDB p
   await page.getByRole("button",{name:"顯示離線Fixture演練"}).click();
   await expect(page.getByText(/以下兩部電影、平台與檢查結果全部是合成資料/)).toBeVisible();
 });
+
+test("production Workers preview rejects anonymous TMDB catalog proxy",async({page})=>{
+  await page.goto("/lab/tw");
+  const result=await page.evaluate(async()=>{
+    const [search,title]=await Promise.all([
+      fetch("/api/watchpilot/tw/search?q=Inception"),
+      fetch("/api/watchpilot/tw/title?id=27205"),
+    ]);
+    return {
+      search:{status:search.status,code:(await search.json()).code},
+      title:{status:title.status,code:(await title.json()).code},
+    };
+  });
+  expect(result.search).toEqual({status:403,code:"PUBLIC_TMDB_DISABLED"});
+  expect(result.title).toEqual({status:403,code:"PUBLIC_TMDB_DISABLED"});
+});
