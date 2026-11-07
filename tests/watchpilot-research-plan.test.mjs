@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { normalizeTWMovie } from "../src/lib/watchpilot/tmdb-tw.ts";
 import { generateTWResearchPlan } from "../src/lib/watchpilot/research-plan.ts";
+import { emptyTastePassport, setGenrePreference, rateTasteWork } from "../src/lib/watchpilot/taste-passport.ts";
 
 const now = "2026-11-07T10:00:00.000Z";
 const base = {
@@ -49,4 +50,18 @@ test("Invalid time budgets and dates throw before scheduling", () => {
   assert.throws(() => generateTWResearchPlan([title(10)], { ...base, weeklyMinutes: 30 }));
   assert.throws(() => generateTWResearchPlan([title(10)], { ...base, dailyMinutes: 700 }));
   assert.throws(() => generateTWResearchPlan([title(10)], { ...base, startDate: "2026-02-30" }));
+});
+
+test("optional personal genre avoidance is enforced in real-observation research planning", () => {
+  const original = generateTWResearchPlan([title(71)], base);
+  assert.equal(original.plan.items.length, 1);
+  const profile = setGenrePreference(emptyTastePassport(), "science-fiction", "avoid");
+  const personalized = generateTWResearchPlan([title(71)], { ...base, tastePassport: profile });
+  assert.equal(personalized.plan.items.length, 0);
+});
+test("personal watched movie remains excluded in real-observation research planning", () => {
+  const profile = rateTasteWork(emptyTastePassport(), "tmdb:71", ["science-fiction"], "love", true);
+  const personalized = generateTWResearchPlan([title(71)], { ...base, tastePassport: profile });
+  assert.equal(personalized.plan.items.length, 0);
+  assert.equal(personalized.plan.rejections[0].reason, "already_watched");
 });
