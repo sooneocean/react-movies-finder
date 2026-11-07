@@ -102,3 +102,13 @@ src/
 ## License
 
 MIT License. Copyright (c) 2020 Lazhari.
+
+
+## WatchPilot Lab（台灣繁體中文個人研究Fork）
+
+這個Fork新增免費、非營利、開源的OTT觀影決策研究功能；上游Screenbox與其MIT授權保留不變。
+
+- 打開 `/lab` 可使用**完全合成的Fixture**測試7天觀影排程，**不需要API Key**。
+- 所有Fixture片名、片源、期限均非真實OTT資訊；即時片庫、Jev及訂閱最佳化尚未整合。
+- 執行 `npm run test:watchpilot`；詳細規格與驗收流程見 [PRD](docs/watchpilot/PRD.md)／[TODO](docs/watchpilot/TODO.md)／[QA](docs/watchpilot/QA.md)。
+- 第三方影視資料依資料供應商條款使用；請參閱 [DATA-POLICY](docs/watchpilot/DATA-POLICY.md)。
