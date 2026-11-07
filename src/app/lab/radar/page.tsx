@@ -124,7 +124,7 @@ export default function CatalogRadarPage() {
       const title = payload.title as TWTitle;
       if (title.tmdbId !== item.tmdbId || title.region !== "TW") throw new Error("作品或地區不符");
       const next = upsertTrackedTitle(workspace, title);
-      commit(next);
+      commit({ ...next, lastPlan: undefined });
       setPlan(undefined);
       setPlanNote("片源觀測已更新；請重新排程以套用最新結果。");
     } catch (cause) {
@@ -140,7 +140,7 @@ export default function CatalogRadarPage() {
     }
   }
   function remove(item: TWTitle) {
-    commit(removeTrackedTitle(workspace, item.tmdbId));
+    commit({ ...removeTrackedTitle(workspace, item.tmdbId), lastPlan: undefined });
     if (chosenWork === "tmdb:" + item.tmdbId) setChosenWork("");
     setPlan(undefined);
     setPlanNote(null);
@@ -155,7 +155,7 @@ export default function CatalogRadarPage() {
         expiresOn, sourceUrl: officialUrl.trim(),
         checkedAt: new Date().toISOString(), reviewedByUser: true,
       };
-      commit(upsertReviewedNotice(workspace, notice));
+      commit({ ...upsertReviewedNotice(workspace, notice), lastPlan: undefined });
       setPlan(undefined);
       setOfficialUrl(""); setExpiresOn(""); setUserReviewed(false);
       setPlanNote("已儲存使用者人工查核期限，請重新產生觀影計畫。");
@@ -281,6 +281,12 @@ export default function CatalogRadarPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
           <h2 className="text-xl font-semibold">3.人工查核官方下架公告</h2>
+          <div className="rounded-lg border border-amber/30 bg-amber/5 p-3 text-sm">
+            <p>LINE TV台灣已公開片名與下架日期清單。可以貼入原始公告文字，逐筆配對追蹤電影並保存人工核對結果。</p>
+            <Link href="/lab/official/line-tv" className="mt-2 inline-flex text-amber underline">
+              LINE TV台灣官方清單匯入 →
+            </Link>
+          </div>
           <p className="text-sm text-muted-foreground">
             僅在你親自查閱平台官方公告後填寫。系統將明確標示「使用者人工查核」，不假裝已由獨立服務認證。
           </p>

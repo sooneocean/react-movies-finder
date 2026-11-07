@@ -57,7 +57,7 @@ export default function TWCatalogResearchPage() {
     setError(null);
     try {
       const current = loadRadarWorkspace(window.localStorage);
-      const next = upsertTrackedTitle(current, item);
+      const next = { ...upsertTrackedTitle(current, item), lastPlan: undefined };
       saveRadarWorkspace(window.localStorage, next);
       setTrackedIds(next.tracked.map(title => title.tmdbId));
     } catch (cause) {
