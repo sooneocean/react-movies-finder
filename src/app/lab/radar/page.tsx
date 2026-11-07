@@ -125,6 +125,8 @@ export default function CatalogRadarPage() {
       if (title.tmdbId !== item.tmdbId || title.region !== "TW") throw new Error("作品或地區不符");
       const next = upsertTrackedTitle(workspace, title);
       commit(next);
+      setPlan(undefined);
+      setPlanNote("片源觀測已更新；請重新排程以套用最新結果。");
     } catch (cause) {
       // Failed fetch is retained as an audit event, NEVER as a successful empty snapshot.
       try {
@@ -154,6 +156,7 @@ export default function CatalogRadarPage() {
         checkedAt: new Date().toISOString(), reviewedByUser: true,
       };
       commit(upsertReviewedNotice(workspace, notice));
+      setPlan(undefined);
       setOfficialUrl(""); setExpiresOn(""); setUserReviewed(false);
       setPlanNote("已儲存使用者人工查核期限，請重新產生觀影計畫。");
     } catch (cause) {
@@ -347,17 +350,17 @@ export default function CatalogRadarPage() {
             </fieldset>
             <div className="grid grid-cols-3 gap-2">
               <label className="space-y-1 text-xs">開始日期
-                <input type="date" required value={startDate} onChange={event => setStartDate(event.target.value)}
+                <input type="date" required value={startDate} onChange={event => { setStartDate(event.target.value); setPlan(undefined); }}
                   className="w-full rounded-lg border border-input bg-background p-2 text-xs"/>
               </label>
               <label className="space-y-1 text-xs">每週時數
                 <input type="number" min={1} max={40} step={1} value={weeklyHours}
-                  onChange={event => setWeeklyHours(Number(event.target.value))}
+                  onChange={event => { setWeeklyHours(Number(event.target.value)); setPlan(undefined); }}
                   className="w-full rounded-lg border border-input bg-background p-2 text-xs"/>
               </label>
               <label className="space-y-1 text-xs">每日上限(小時)
                 <input type="number" min={0.5} max={8} step={0.5} value={dailyHours}
-                  onChange={event => setDailyHours(Number(event.target.value))}
+                  onChange={event => { setDailyHours(Number(event.target.value)); setPlan(undefined); }}
                   className="w-full rounded-lg border border-input bg-background p-2 text-xs"/>
               </label>
             </div>
