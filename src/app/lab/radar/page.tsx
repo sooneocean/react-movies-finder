@@ -6,7 +6,7 @@ import type { TWTitle } from "@/lib/watchpilot/tmdb-tw";
 import { generateTWResearchPlan } from "@/lib/watchpilot/research-plan";
 import { deriveRadarEvents, type RadarEvent, type RadarSnapshot, type ReviewedNotice } from "@/lib/watchpilot/catalog-radar";
 import {
-  emptyRadarWorkspace, loadRadarWorkspace, removeTrackedTitle,
+  emptyRadarWorkspace, loadRadarWorkspace, removeTrackedTitle, recordRadarRefreshFailure,
   saveRadarWorkspace, upsertTrackedTitle, upsertReviewedNotice,
   withReviewedExpiry, type RadarWorkspace,
 } from "@/lib/watchpilot/radar-workspace";
@@ -46,12 +46,6 @@ function fixtureTimeline(): RadarSnapshot[] {
 }
 function twTime(value: string): string {
   return new Date(value).toLocaleString("zh-TW", { timeZone: "Asia/Taipei" });
-}
-function workIdToNumber(id: string): number | null {
-  const match = /^tmdb:([1-9]\d*)$/.exec(id);
-  if (!match) return null;
-  const number = Number(match[1]);
-  return Number.isSafeInteger(number) ? number : null;
 }
 function allEvents(workspace: RadarWorkspace): RadarEvent[] {
   const groups = new Map<string, RadarSnapshot[]>();
@@ -125,7 +119,12 @@ export default function CatalogRadarPage() {
       const next = upsertTrackedTitle(workspace, title);
       commit(next);
     } catch (cause) {
-      // Do not append a "missing" snapshot when an API call fails.
+      // Failed fetch is retained as an audit event, NEVER as a successful empty snapshot.
+      try {
+        commit(recordRadarRefreshFailure(workspace, item.tmdbId));
+      } catch {
+        // Local storage may be blocked; keep showing the original error.
+      }
       setError(cause instanceof Error ? cause.message : "更新失敗，沒有記錄為下架");
     } finally {
       setBusyId(null);
