@@ -112,3 +112,11 @@ MIT License. Copyright (c) 2020 Lazhari.
 - 所有Fixture片名、片源、期限均非真實OTT資訊；即時片庫、Jev及訂閱最佳化尚未整合。
 - 執行 `npm run test:watchpilot`；詳細規格與驗收流程見 [PRD](docs/watchpilot/PRD.md)／[TODO](docs/watchpilot/TODO.md)／[QA](docs/watchpilot/QA.md)。
 - 第三方影視資料依資料供應商條款使用；請參閱 [DATA-POLICY](docs/watchpilot/DATA-POLICY.md)。
+
+### 台灣OTT真實片源研究（PR #2）
+
+- 開啟 [台灣片源研究頁](http://localhost:3000/lab/tw)：搜尋繁體中文電影名稱、檢查台灣觀看來源、加入候選、產生7天計畫。
+- 需自行在本機`.env.local`設定`MOVIE_DB_API_KEY=your_v3_tmdb_api_key`。**不要把Key提交到GitHub。**
+- 每次搜尋最多5部電影，來源為TMDB／JustWatch的**第三方觀測**，並非OTT官方授權或下架日證明。
+- 沒有API Key仍可使用`/lab`的合成Fixture模式。
+- 詳細查核流程：[TW驗收清單](docs/watchpilot/QA-TW.md)與[資料來源決策](docs/watchpilot/ADR-002-TMDB-TW.md)。

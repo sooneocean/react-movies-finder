@@ -3,7 +3,7 @@
  * Does not fetch streaming data or infer licensing expiry.
  */
 export type Evidence = "FIXTURE" | "VERIFIED" | "OBSERVED" | "UNVERIFIED";
-export type Access = "subscription" | "free" | "rent" | "buy";
+export type Access = "subscription" | "free" | "ads" | "rent" | "buy";
 export type Mode = "fixture" | "research";
 export interface Offer {
   providerId: string;
