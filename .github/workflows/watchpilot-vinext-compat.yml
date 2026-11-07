@@ -55,7 +55,7 @@ jobs:
           # in this separate migration branch to prevent ambiguous install tools.
           git add -A package.json package-lock.json bun.lock .gitignore vite.config.ts cloudflare.config.ts
           git commit -m "build(cloudflare): prepare vinext Worker configs and pinned npm dependencies"
-          git push origin HEAD:refs/heads/feat/watchpilot-vinext-full
+          git push origin HEAD:refs/heads/feat/watchpilot-vinext-generated
       - name: Show only generated config filenames
         if: always()
         run: |
