@@ -31,3 +31,8 @@ jobs:
         run: npm run type-check
       - name: ESLint
         run: npm run lint
+      - name: Next.js production build (no private credentials)
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+          MOVIE_DB_API_KEY: ""
+        run: npm run build
