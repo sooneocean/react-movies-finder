@@ -19,12 +19,18 @@
 - [ ] 不同日期、平台、時數及偏好可以重算
 - [ ] 20組可重現繁中輸入情境
 
-## WP-003｜台灣OTT資料
-- [ ] TMDB zh-TW中繼及results.TW解析
-- [ ] 區分訂閱／免費／租／買
-- [ ] 來源時間、授權歸屬與JustWatch/TMDB署名
-- [ ] 台灣平台覆蓋度與20部作品人工抽樣
-- [ ] 無API Key時保持Fixture可用
+## WP-003｜台灣OTT資料（PR #2）
+- [x] TMDB zh-TW伺服器端查詢及results.TW限定解析
+- [x] 區分訂閱／免費／含廣告／租／買
+- [x] 來源時間與JustWatch/TMDB署名
+- [x] TMDB可觀測候選接到7天研究排程
+- [x] 無API Key時保持Fixture可用
+- [x] 為TW資料、邊界與部分失敗新增單元測試
+- [ ] GitHub CI真實執行與TypeScript建置結果
+- [ ] 研究者在本機提供TMDB Key並實測
+- [ ] 以官方OTT來源交叉驗證20部作品及實際平台覆蓋
+- [ ] 確認TMDB官方Logo顯示正確及來源署名符合要求
+- [ ] 公網部署前增加認證／限流與授權檢查
 
 ## WP-004｜IN/OUT片庫變動
 - [ ] FIRST_SEEN、UPCOMING、LEAVING_CONFIRMED、REMOVED_OBSERVED、RETURNED、ACCESS_CHANGED
