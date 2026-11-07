@@ -19,6 +19,9 @@ function isRecord(input: unknown): input is Record<string, unknown> {
   return input !== null && typeof input === "object" && !Array.isArray(input);
 }
 function isSameOriginRequest(request: NextRequest): boolean {
+  // Next.js may normalize request.url to localhost while the browser and
+  // Host header use 127.0.0.1. Retain the proven local-development gate.
+  if (isLoopbackRequest(request)) return true;
   const origin = request.headers.get("origin") ?? "";
   try {
     const actual = new URL(request.url);
