@@ -13,6 +13,8 @@ export interface Offer {
   source: string;
   observedOn: string;
   expiresOn?: string | null;
+  /** Expiry evidence is separate from availability evidence. */
+  expiryEvidence?: "USER_REVIEWED_OFFICIAL" | "UNVERIFIED";
 }
 export interface Candidate {
   id: string;
@@ -55,6 +57,7 @@ export interface ScheduledItem {
   evidence: Evidence;
   source: string;
   confirmedExpiryOn: string | null;
+  expiryEvidence?: "USER_REVIEWED_OFFICIAL" | "UNVERIFIED";
 }
 export interface PlanOutput {
   items: ScheduledItem[];
@@ -87,13 +90,16 @@ function eligible(offer: Offer, date: string, input: PlanInput): boolean {
       : offer.evidence !== "VERIFIED" && offer.evidence !== "OBSERVED") return false;
   const age = daysBetween(offer.observedOn, date);
   if (age < 0 || age > (input.observationMaxAgeDays ?? 7)) return false;
-  if ((offer.evidence === "VERIFIED" || offer.evidence === "FIXTURE") &&
-      offer.expiresOn && date > validDay(offer.expiresOn)) return false;
+  if (hasTrustedExpiry(offer) && offer.expiresOn && date > validDay(offer.expiresOn)) return false;
   return true;
+}
+function hasTrustedExpiry(offer: Offer): boolean {
+  return offer.evidence === "FIXTURE" || offer.evidence === "VERIFIED" ||
+    offer.expiryEvidence === "USER_REVIEWED_OFFICIAL";
 }
 function rank(candidate: Candidate, offer: Offer, date: string): number {
   let urgency = 0;
-  if ((offer.evidence === "VERIFIED" || offer.evidence === "FIXTURE") && offer.expiresOn) {
+  if (hasTrustedExpiry(offer) && offer.expiresOn) {
     const days = daysBetween(date, offer.expiresOn);
     if (days >= 0) urgency = days <= 1 ? 100 : days <= 3 ? 85 : days <= 7 ? 65 : days <= 14 ? 30 : 0;
   }
@@ -173,8 +179,9 @@ export function planViewing(input: PlanInput): PlanOutput {
       runtimeMinutes: candidate.runtimeMinutes, score: best.score,
       providerId: best.offer.providerId, evidence: best.offer.evidence,
       source: best.offer.source,
-      confirmedExpiryOn: (best.offer.evidence === "VERIFIED" || best.offer.evidence === "FIXTURE")
-        && best.offer.expiresOn ? validDay(best.offer.expiresOn) : null,
+      confirmedExpiryOn: hasTrustedExpiry(best.offer) && best.offer.expiresOn
+        ? validDay(best.offer.expiresOn) : null,
+      expiryEvidence: best.offer.expiryEvidence,
     });
   }
   items.sort((a, b) => a.date.localeCompare(b.date) ||
