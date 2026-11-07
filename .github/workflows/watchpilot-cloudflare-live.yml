@@ -1,0 +1,51 @@
+name: WatchPilot Cloudflare public live smoke
+on:
+  push:
+    branches:
+      - feat/watchpilot-cloudflare-launch
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-health:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Confirm public HTTP health response
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --retry 3 --connect-timeout 10 --max-time 20 \
+            https://watchpilot-lab-research.sooneocean.workers.dev/health \
+            --output /tmp/watchpilot-health.json
+          node --input-type=module -e "import{readFileSync}from'node:fs';const data=JSON.parse(readFileSync('/tmp/watchpilot-health.json','utf8'));if(!data.ok||data.mode!=='fixture'||data.paid_api!==false)process.exit(1);"
+      - name: Inspect published HTML and static assets
+        run: |
+          curl -fsSL --retry 3 --max-time 20 https://watchpilot-lab-research.sooneocean.workers.dev/ -o /tmp/watchpilot-home.html
+          curl -fsSL --retry 3 --max-time 20 https://watchpilot-lab-research.sooneocean.workers.dev/app.js -o /tmp/watchpilot-app.js
+          curl -fsSL --retry 3 --max-time 20 https://watchpilot-lab-research.sooneocean.workers.dev/style.css -o /tmp/watchpilot-style.css
+          grep -q "WatchPilot" /tmp/watchpilot-home.html
+          grep -q "研究樣本A" /tmp/watchpilot-app.js
+          test -s /tmp/watchpilot-style.css
+      - name: Install pinned Playwright for smoke
+        run: npm install --no-save --package-lock=false @playwright/test@1.56.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Exercise real live Cloudflare browser UI
+        env:
+          WATCHPILOT_CLOUDFLARE_URL: https://watchpilot-lab-research.sooneocean.workers.dev
+        run: npx playwright test --config=tests/cloudflare/playwright.config.mjs
+      - name: Save live smoke failures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watchpilot-cloudflare-live-errors
+          path: tests/cloudflare/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
