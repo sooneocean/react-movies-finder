@@ -101,7 +101,8 @@ export default function LineTvOfficialResearchPage() {
       if (!current.tracked.some(item => item.tmdbId === identity.tmdbId)) {
         throw new Error("追蹤片單已變更，請重新載入頁面");
       }
-      const next = upsertReviewedNotice(current, notice);
+      // A new deadline invalidates the earlier plan; user must re-run scheduling.
+      const next = { ...upsertReviewedNotice(current, notice), lastPlan: undefined };
       saveRadarWorkspace(window.localStorage, next);
       setWorkspace(next);
       setSuccess(
