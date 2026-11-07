@@ -66,7 +66,9 @@ test("source error is never an observed removal and breaks repeated-absence evid
     base("2026-11-04T00:00:00Z", []),
     base("2026-11-05T00:00:00Z", []),
   ];
-  assert.deepEqual(kinds(rows), ["BASELINE", "MISSING_FIRST", "SOURCE_FAILED"]);
+  assert.deepEqual(kinds(rows), ["BASELINE", "MISSING_FIRST", "SOURCE_FAILED", "MISSING_REPEATED"]);
+  // Repeat is based on fresh observations from Nov 4 and Nov 5,
+  // not from the interrupted Nov 2 -> Nov 3 chain.
 });
 test("partial source is not a delisting", () => {
   assert.deepEqual(kinds([
@@ -185,4 +187,14 @@ test("failed refresh is auditable and cannot imply removal", () => {
   assert.deepEqual(kinds(failed.snapshots), ["BASELINE", "SOURCE_FAILED"]);
   assert.equal(failed.snapshots[1].offers.length, 0);
   assert.equal(failed.snapshots[1].status, "FAILED");
+});
+
+test("first successful observation after a failure cannot claim repeated absence", () => {
+  const rows = [
+    base("2026-11-01T00:00:00Z"),
+    base("2026-11-02T00:00:00Z", []),
+    base("2026-11-03T00:00:00Z", [], "FAILED"),
+    base("2026-11-04T00:00:00Z", []),
+  ];
+  assert.deepEqual(kinds(rows), ["BASELINE", "MISSING_FIRST", "SOURCE_FAILED"]);
 });
