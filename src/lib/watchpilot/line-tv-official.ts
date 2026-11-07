@@ -70,7 +70,7 @@ function parseNoticeLine(line: string): {
   title: string; category: string; dateText: string;
 } | null {
   const cells = rowCells(line);
-  const datePattern = /20\d{2}[-/]\d{1,2}[-/]\d{1,2}/g;
+  const datePattern = /20\d{2}[-/]\d{1,2}[-/]\d{1,2}/;
   if (cells.length >= 2) {
     const hits = cells.flatMap((cell, index) =>
       datePattern.test(cell) ? [{ index, cell }] : []);
