@@ -134,7 +134,7 @@ export function deriveRadarEvents(snapshots: RadarSnapshot[]): RadarEvent[] {
       continue;
     }
     const prior = grouped(previous.offers);
-    const keys = new Set([...prior.keys(), ...current.keys(), ...missingSince.keys()]);
+    const keys = new Set([...prior.keys(), ...current.keys(), ...missingSince.keys(), ...everSeen.keys()]);
     for (const id of [...keys].sort()) {
       const a = prior.get(id), b = current.get(id);
       const name = b?.name ?? a?.name ?? id;
@@ -154,7 +154,11 @@ export function deriveRadarEvents(snapshots: RadarSnapshot[]): RadarEvent[] {
         missingSince.delete(id);
       } else {
         const missing = missingSince.get(id);
-        if (missing && !missing.repeated &&
+        if (!missing && everSeen.has(id)) {
+          // After a failed/partial fetch, rebuild the missing streak from a fresh
+          // successful observation. Do not compare across the interrupted chain.
+          missingSince.set(id, { time: validInstant(snap.observedAt), repeated: false });
+        } else if (missing && !missing.repeated &&
           validInstant(snap.observedAt) - missing.time >= 24 * 60 * 60 * 1000) {
           events.push(event(snap, "MISSING_REPEATED", id, name));
           missing.repeated = true;
