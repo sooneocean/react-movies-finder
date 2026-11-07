@@ -40,11 +40,12 @@ export function parsePreferenceHint(text: string): {
 /** All titles, offers, and expiry dates here are synthetic research fixtures. */
 export function makeLabInput(settings: LabSettings): PlanInput {
   const weeklyMinutes = Math.max(0, Math.min(40 * 60, Math.floor(settings.weeklyMinutes)));
-  const days = Math.max(1, Math.min(7, Math.floor(weeklyMinutes / 135)));
-  const slotMinutes = Math.floor(weeklyMinutes / days);
-  const slots = Array.from({ length: days }, (_, idx) => ({
-    date: addDay(settings.startDate, Math.floor((idx * 7) / days)),
-    minutes: slotMinutes + (idx < weeklyMinutes % days ? 1 : 0),
+  // A weekly time budget does not imply which days the user is free.
+  // For the research baseline, make all seven days potentially usable;
+  // the engine enforces the independent weekly total.
+  const slots = Array.from({ length: 7 }, (_, idx) => ({
+    date: addDay(settings.startDate, idx),
+    minutes: Math.min(210, weeklyMinutes),
   }));
   const hint = parsePreferenceHint(settings.text);
   const observedOn = settings.startDate;
@@ -65,7 +66,7 @@ export function makeLabInput(settings: LabSettings): PlanInput {
     { id: "sample-08", title: "研究樣本H｜已看過", runtimeMinutes: 95, genres: ["mystery"], taste: 91, qualityScore: 85, watched: true, offers: [offer("disney")] },
   ];
   return {
-    mode: "fixture", region: "TW",
+    mode: "fixture", region: "TW", weeklyBudgetMinutes: weeklyMinutes,
     subscribedProviders: settings.subscribedProviders,
     excludedGenres: hint.excludedGenres,
     slots,
