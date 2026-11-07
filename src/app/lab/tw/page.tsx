@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { TWTitle, TWOffer } from "@/lib/watchpilot/tmdb-tw";
 import {
   generateTWResearchPlan, type TWResearchResult,
 } from "@/lib/watchpilot/research-plan";
 import { LAB_PROVIDERS } from "@/lib/watchpilot/fixtures";
+import { loadRadarWorkspace, saveRadarWorkspace, upsertTrackedTitle } from "@/lib/watchpilot/radar-workspace";
 
 const ACCESS_LABEL: Record<TWOffer["monetization"], string> = {
   flatrate: "訂閱",
@@ -36,6 +37,7 @@ export default function TWCatalogResearchPage() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<TWTitle[]>([]);
   const [selected, setSelected] = useState<TWTitle[]>([]);
+  const [trackedIds, setTrackedIds] = useState<number[]>([]);
   const [subscribed, setSubscribed] = useState<string[]>([]);
   const [preference, setPreference] = useState("想看科幻、懸疑，不要恐怖片");
   const [startDate, setStartDate] = useState(todayTW);
@@ -47,6 +49,21 @@ export default function TWCatalogResearchPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const currentRequest = useRef(0);
+  useEffect(() => {
+    const workspace = loadRadarWorkspace(window.localStorage);
+    setTrackedIds(workspace.tracked.map(title => title.tmdbId));
+  }, []);
+  function addRadar(item: TWTitle) {
+    setError(null);
+    try {
+      const current = loadRadarWorkspace(window.localStorage);
+      const next = upsertTrackedTitle(current, item);
+      saveRadarWorkspace(window.localStorage, next);
+      setTrackedIds(next.tracked.map(title => title.tmdbId));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "無法加入雷達");
+    }
+  }
 
   const providerLabels = new Map<string, string>(
     LAB_PROVIDERS.map(provider => [provider.id, provider.name] as [string, string]),
@@ -117,6 +134,9 @@ export default function TWCatalogResearchPage() {
         <Link href="/lab" className="text-sm text-amber hover:underline">返回離線研究實驗室</Link>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber">WatchPilot Lab / TW API Research</p>
         <h1 className="text-3xl font-bold">台灣OTT片源研究</h1>
+        <Link href="/lab/radar" className="inline-flex rounded-lg border border-amber/50 px-4 py-2 text-sm font-medium text-amber hover:bg-amber/10">
+          查看片庫IN／OUT雷達
+        </Link>
         <p className="text-muted-foreground">
           使用自己的TMDB API Key搜尋電影。可加入候選片單，再依觀看時數、個人偏好及台灣觀測到的觀看來源排程。
         </p>
@@ -169,10 +189,16 @@ export default function TWCatalogResearchPage() {
                       </p>
                       {item.originalTitle !== item.title && <p className="text-xs text-muted-foreground">{item.originalTitle}</p>}
                     </div>
-                    <button type="button" disabled={!item.runtimeMinutes} onClick={() => toggleTitle(item)}
-                      className="shrink-0 rounded-lg border border-amber/40 px-3 py-2 text-xs font-medium text-amber disabled:opacity-40">
-                      {added ? "移除" : item.runtimeMinutes ? "加入候選" : "缺少片長"}
-                    </button>
+                    <div className="flex shrink-0 flex-col gap-2">
+                      <button type="button" disabled={!item.runtimeMinutes} onClick={() => toggleTitle(item)}
+                        className="rounded-lg border border-amber/40 px-3 py-2 text-xs font-medium text-amber disabled:opacity-40">
+                        {added ? "移除" : item.runtimeMinutes ? "加入候選" : "缺少片長"}
+                      </button>
+                      <button type="button" onClick={() => addRadar(item)}
+                        className="rounded-lg border border-border px-3 py-2 text-xs">
+                        {trackedIds.includes(item.tmdbId) ? "更新雷達基準" : "加入雷達"}
+                      </button>
+                    </div>
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {item.offers.map(offer => (
